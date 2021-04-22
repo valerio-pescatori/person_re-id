@@ -36,7 +36,6 @@
     <ImplicitlyExpandDesignTimeFacades>false</ImplicitlyExpandDesignTimeFacades>
   </PropertyGroup>
   <ItemGroup>
-     <Compile Include="Assets\ZScore.cs" />
      <Compile Include="Assets\PlayerController.cs" />
      <Compile Include="Assets\ReId.cs" />
     <Reference Include="UnityEngine">

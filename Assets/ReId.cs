@@ -1,11 +1,9 @@
-using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
 using System;
 using System.Diagnostics;
-using System.IO;
 using Debug = UnityEngine.Debug;
 
 // 0  => "mixamorig9:Neck",
@@ -35,7 +33,9 @@ public class ReId : MonoBehaviour
     // campi per misura1
     private float characterHeight;
     // la lista mi serve solo per plottare i valori, dopo potrò usare semplicemente un float che tiene il valore del frame precedente
-    private List<float> stepLengths;
+    private List<float> ankleDistances;
+    private float lastStep;
+    private List<float> stepLenghts;
     private bool andamento;
     private float lambda;
 
@@ -44,7 +44,9 @@ public class ReId : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        stepLengths = new List<float>();
+        ankleDistances = new List<float>();
+        stepLenghts = new List<float>();
+        lastStep = 0f;
         characterHeight = joints[15].transform.position.y - joints[16].transform.position.y;
         lambda = characterHeight/110;
     }
@@ -84,40 +86,52 @@ public class ReId : MonoBehaviour
         // la calcolo come la distanza media (prendendo solo le coordinate x e z) dei piedi
         Vector2 leftFoot = new Vector2(joints[14].transform.position.x, joints[14].transform.position.z);
         Vector2 rightFoot = new Vector2(joints[11].transform.position.x, joints[11].transform.position.z);
-        stepLengths.Add(Vector2.Distance(leftFoot, rightFoot));
-        int last = stepLengths.Count-1;
+        float newStep = Vector2.Distance(leftFoot, rightFoot);
+        ankleDistances.Add(newStep);
 
         // idea per rilevare i picchi:
         // misuro ad ogni frame (oppure ogni x frames per rendere + efficiente) l'andamento della curva         
         // se il valore attuale è più grande/piccolo di un certo lambda (es, 10% characterheight) rispetto al valore precedente
         // allora cambia l'andamento della funzione
         // quando l'andamento passa da crescente a decrescente prendo il picco
-        if(stepLengths.Count > 2)
+        if(lastStep != 0)
         {
             // controllo se cresce
-            if( stepLengths[last] > stepLengths[last-1] && Math.Abs(stepLengths[last] - stepLengths[last-1]) > lambda)
+            if( newStep > lastStep && Math.Abs(newStep - lastStep) > lambda)
                 andamento = true;
-            if(stepLengths[last] < stepLengths[last-1] && Math.Abs(stepLengths[last] - stepLengths[last-1]) > lambda)
+            // controllo se diminuisce
+            else if(newStep < lastStep && Math.Abs(newStep - lastStep) > lambda)
             {
                 if(andamento == true)
-                    Debug.Log(stepLengths[last-1]);
+                    stepLenghts.Add(lastStep);
                 andamento = false;
             }
         }
+        // aggiorno lastStep
+        lastStep = newStep;
 
-        if(stepLengths.Count == 300)
+        if(ankleDistances.Count == 300)
+        {
+            float sum = 0f;
+            foreach(float f in stepLenghts)
+                sum += f;
+            float avg = sum/stepLenghts.Count;
+            Debug.Log("AVG: " + avg );
+            Debug.Log("H: " + characterHeight);
+            Debug.Log("RAPPORTO: " + characterHeight/avg); // >1 --> passi più corti dell'altezza
             PlotValues();
+        }
 
     }
 
     public void PlotValues()
     {
         StringBuilder sb = new StringBuilder();
-            for (int i = 0; i < stepLengths.Count -1 ; i++)
-                sb.Append(stepLengths[i].ToString("F4").Replace(",", ".") + ",");
-            sb.Append(stepLengths[stepLengths.Count-1].ToString("F4").Replace(",", "."));
+            for (int i = 0; i < ankleDistances.Count -1 ; i++)
+                sb.Append(ankleDistances[i].ToString("F4").Replace(",", ".") + ",");
+            sb.Append(ankleDistances[ankleDistances.Count-1].ToString("F4").Replace(",", "."));
         string arg1 = sb.ToString();
-        string arg2 = stepLengths.Count.ToString();
+        string arg2 = ankleDistances.Count.ToString();
 
         ProcessStartInfo start = new ProcessStartInfo();
         start.FileName = @"C:\Users\pesca\AppData\Local\Microsoft\WindowsApps\PythonSoftwareFoundation.Python.3.8_qbz5n2kfra8p0\python3.exe";

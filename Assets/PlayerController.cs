@@ -40,5 +40,16 @@ public class PlayerController : MonoBehaviour
             else
                 anim.SetFloat("crouch", 1);
 
+        // Short walk
+        if (Input.GetKey(KeyCode.T))
+            anim.SetFloat("shortwalk", 1);
+        else
+            anim.SetFloat("shortwalk", 0);
+
+        // Long walk
+        if (Input.GetKey(KeyCode.Y))
+            anim.SetFloat("longwalk", 1);
+        else
+            anim.SetFloat("longwalk", 0);
     }
 }
