@@ -106,22 +106,22 @@ public class ReId : MonoBehaviour
         }
 
         if(stepLengths.Count == 300)
-        {
-            // distances plot
-            StringBuilder sb = new StringBuilder();
-            for (int i = 0; i < stepLengths.Count -1 ; i++)
-                sb.Append(stepLengths[i].ToString("F4").Replace(",", ".") + ",");
-            sb.Append(stepLengths[stepLengths.Count-1].ToString("F4").Replace(",", "."));
-            RunCmd(pyScriptPath, sb.ToString(), stepLengths.Count.ToString());
-        }
+            PlotValues();
 
     }
 
-    public void RunCmd(string cmd, string arg1, string arg2)
+    public void PlotValues()
     {
+        StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < stepLengths.Count -1 ; i++)
+                sb.Append(stepLengths[i].ToString("F4").Replace(",", ".") + ",");
+            sb.Append(stepLengths[stepLengths.Count-1].ToString("F4").Replace(",", "."));
+        string arg1 = sb.ToString();
+        string arg2 = stepLengths.Count.ToString();
+
         ProcessStartInfo start = new ProcessStartInfo();
         start.FileName = @"C:\Users\pesca\AppData\Local\Microsoft\WindowsApps\PythonSoftwareFoundation.Python.3.8_qbz5n2kfra8p0\python3.exe";
-        start.Arguments = $" -i \"{cmd}\" \"{arg1}\" \"{arg2}\"";
+        start.Arguments = $" -i \"{pyScriptPath}\" \"{arg1}\" \"{arg2}\"";
         start.UseShellExecute = true;
         start.CreateNoWindow = true;
         using (Process process = Process.Start(start))
