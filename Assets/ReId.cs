@@ -34,36 +34,25 @@ public class ReId : MonoBehaviour
 
     // campi per misura1
     private float characterHeight;
-    private List<decimal> stepLengths;
-    private ZScoreOutput output;
+    // la lista mi serve solo per plottare i valori, dopo potrò usare semplicemente un float che tiene il valore del frame precedente
+    private List<float> stepLengths;
+    private bool andamento;
+    private float lambda;
+
     public const string pyScriptPath = @"C:\Users\pesca\Person Re-Id\Assets\plot.py";
 
     // Start is called before the first frame update
     void Start()
     {
-        stepLengths = new List<decimal>();
+        stepLengths = new List<float>();
         characterHeight = joints[15].transform.position.y - joints[16].transform.position.y;
+        lambda = characterHeight/110;
     }
 
     // Update is called once per frame
     void Update()
     {
-        //PrintJointsCoord();
-        
-        // float[] bodyOpenness = BodyOpenness();
-        // float[] bct = BodyConvexTriangulation();
-
-        // // print
-        // StringBuilder sb = new StringBuilder();
-        // sb.AppendLine("Lower Body Openness: " + bodyOpenness[0]);
-        // sb.AppendLine("Upper Body Openness: " + bodyOpenness[1]);
-        // sb.AppendLine("Lower BCT: " + bct[0]);
-        // sb.AppendLine("Upper BCT: " + bct[1]);
-        // sb.AppendLine("Full BCT: " + bct[2]);
-        // textObject.text = sb.ToString();
-
         Misura1();
-
     }
 
     // ideee per nuova feature
@@ -89,18 +78,32 @@ public class ReId : MonoBehaviour
     //  potrei usare semplicemente l'angolo (?), oppure rapportarlo a qualcos'altro in modo da avere una misura 
     //  numerica non in gradi
 
-    private float Misura1()
+    private void Misura1()
     {   
         // calcolo ampiezza del passo
         // la calcolo come la distanza media (prendendo solo le coordinate x e z) dei piedi
         Vector2 leftFoot = new Vector2(joints[14].transform.position.x, joints[14].transform.position.z);
         Vector2 rightFoot = new Vector2(joints[11].transform.position.x, joints[11].transform.position.z);
-        stepLengths.Add((decimal)Vector2.Distance(leftFoot, rightFoot));
+        stepLengths.Add(Vector2.Distance(leftFoot, rightFoot));
+        int last = stepLengths.Count-1;
 
-
-        // utilizzo ZScore per determinare i picchi nelle lunghezze dei passi
-        if (stepLengths.Count >= 55)
-            output = ZScore.StartAlgo(stepLengths, 50, 5, 0);
+        // idea per rilevare i picchi:
+        // misuro ad ogni frame (oppure ogni x frames per rendere + efficiente) l'andamento della curva         
+        // se il valore attuale è più grande/piccolo di un certo lambda (es, 10% characterheight) rispetto al valore precedente
+        // allora cambia l'andamento della funzione
+        // quando l'andamento passa da crescente a decrescente prendo il picco
+        if(stepLengths.Count > 2)
+        {
+            // controllo se cresce
+            if( stepLengths[last] > stepLengths[last-1] && Math.Abs(stepLengths[last] - stepLengths[last-1]) > lambda)
+                andamento = true;
+            if(stepLengths[last] < stepLengths[last-1] && Math.Abs(stepLengths[last] - stepLengths[last-1]) > lambda)
+            {
+                if(andamento == true)
+                    Debug.Log(stepLengths[last-1]);
+                andamento = false;
+            }
+        }
 
         if(stepLengths.Count == 300)
         {
@@ -110,21 +113,9 @@ public class ReId : MonoBehaviour
                 sb.Append(stepLengths[i].ToString("F4").Replace(",", ".") + ",");
             sb.Append(stepLengths[stepLengths.Count-1].ToString("F4").Replace(",", "."));
             RunCmd(pyScriptPath, sb.ToString(), stepLengths.Count.ToString());
-
-
-            // zscore plot
-            StringBuilder sbZscore = new StringBuilder();
-            for(int i = 0; i < output.signals.Count-1; i++)
-            {
-                sbZscore.Append(output.signals[i].ToString() + ",");
-            }
-            sbZscore.Append(output.signals[output.signals.Count-1].ToString());
-            RunCmd(pyScriptPath, sbZscore.ToString(), output.signals.Count.ToString());
         }
 
-        return 1.0f;
     }
-
 
     public void RunCmd(string cmd, string arg1, string arg2)
     {
@@ -188,7 +179,6 @@ public class ReId : MonoBehaviour
                                          joints[0].transform.position);
         return res;
     }
-
 
     private float BodyConvexTriangulation(Vector3 point1, Vector3 point2, Vector3 point3)
     {
