@@ -1,12 +1,11 @@
-using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
 using System;
 using System.Diagnostics;
-using System.IO;
 using Debug = UnityEngine.Debug;
+using SwingClass;
 
 // 0  => "mixamorig9:Neck",
 // 1  => "mixamorig9:Spine2",
@@ -34,103 +33,82 @@ public class ReId : MonoBehaviour
 
     // campi per misura1
     private float characterHeight;
-    private List<decimal> stepLengths;
-    private ZScoreOutput output;
+    // campi per steplength
+    private SwingObject feetSwing;
+    private SwingObject armsSwing;
     public const string pyScriptPath = @"C:\Users\pesca\Person Re-Id\Assets\plot.py";
 
     // Start is called before the first frame update
     void Start()
     {
-        stepLengths = new List<decimal>();
         characterHeight = joints[15].transform.position.y - joints[16].transform.position.y;
+        feetSwing = new SwingObject(characterHeight/110);
+        armsSwing = new SwingObject(characterHeight/110);
     }
 
     // Update is called once per frame
     void Update()
     {
-        //PrintJointsCoord();
-        
-        // float[] bodyOpenness = BodyOpenness();
-        // float[] bct = BodyConvexTriangulation();
-
-        // // print
-        // StringBuilder sb = new StringBuilder();
-        // sb.AppendLine("Lower Body Openness: " + bodyOpenness[0]);
-        // sb.AppendLine("Upper Body Openness: " + bodyOpenness[1]);
-        // sb.AppendLine("Lower BCT: " + bct[0]);
-        // sb.AppendLine("Upper BCT: " + bct[1]);
-        // sb.AppendLine("Full BCT: " + bct[2]);
-        // textObject.text = sb.ToString();
-
-        Misura1();
-
+        // StepLength();
+        ArmSwingLength();
     }
 
-    // ideee per nuova feature
 
-    // idea 1.
-
-    // calcolo il rapporto tra la lunghezza media del passo (foot) e l'altezza della persona -->
-    
-    // prendo il valore medio della lunghezza del passo in una sequenza video sufficentemente lunga 
-    // e la rapporto all'altezza del soggetto (prendo toes e head per l'altezza)
-
-    // potrei inoltre fare la stessa cosa per l'ampiezza dell'oscillazione delle braccia.
-
-    // #########################################################################################################
-
-    //  idea 2.
-
-    //  calcolo la larghezza delle braccia rispetto al corpo --> prendo il triangolo formato dai punti 
-    //  spalla (upper arm), polso (hand) e bacino (hips / upper leg)
-
-    //  e misuro l'ampiezza dell'angolo della spalla.
-
-    //  potrei usare semplicemente l'angolo (?), oppure rapportarlo a qualcos'altro in modo da avere una misura 
-    //  numerica non in gradi
-
-    private float Misura1()
+    // StepLength
+    private void StepLength()
     {   
         // calcolo ampiezza del passo
         // la calcolo come la distanza media (prendendo solo le coordinate x e z) dei piedi
         Vector2 leftFoot = new Vector2(joints[14].transform.position.x, joints[14].transform.position.z);
         Vector2 rightFoot = new Vector2(joints[11].transform.position.x, joints[11].transform.position.z);
-        stepLengths.Add((decimal)Vector2.Distance(leftFoot, rightFoot));
+        feetSwing.AvgDistance(leftFoot, rightFoot);
 
 
-        // utilizzo ZScore per determinare i picchi nelle lunghezze dei passi
-        if (stepLengths.Count >= 55)
-            output = ZScore.StartAlgo(stepLengths, 50, 5, 0);
-
-        if(stepLengths.Count == 300)
+        if(feetSwing.Distances.Count == 300)
         {
-            // distances plot
-            StringBuilder sb = new StringBuilder();
-            for (int i = 0; i < stepLengths.Count -1 ; i++)
-                sb.Append(stepLengths[i].ToString("F4").Replace(",", ".") + ",");
-            sb.Append(stepLengths[stepLengths.Count-1].ToString("F4").Replace(",", "."));
-            RunCmd(pyScriptPath, sb.ToString(), stepLengths.Count.ToString());
-
-
-            // zscore plot
-            StringBuilder sbZscore = new StringBuilder();
-            for(int i = 0; i < output.signals.Count-1; i++)
-            {
-                sbZscore.Append(output.signals[i].ToString() + ",");
-            }
-            sbZscore.Append(output.signals[output.signals.Count-1].ToString());
-            RunCmd(pyScriptPath, sbZscore.ToString(), output.signals.Count.ToString());
+            float sum = 0f;
+            foreach(float f in feetSwing.SwingPeaks)
+                sum += f;
+            float avg = sum/feetSwing.SwingPeaks.Count;
+            Debug.Log("AVG: " + avg );
+            Debug.Log("H: " + characterHeight);
+            Debug.Log("RAPPORTO: " + characterHeight/avg); // >1 --> passi più corti dell'altezza
+            PlotValues(feetSwing);
         }
-
-        return 1.0f;
     }
 
-
-    public void RunCmd(string cmd, string arg1, string arg2)
+    private void ArmSwingLength()
     {
+        Vector2 leftArm = new Vector2(joints[7].transform.position.x, joints[7].transform.position.z);
+        Vector2 rightArm = new Vector2(joints[4].transform.position.x, joints[4].transform.position.z);
+        armsSwing.AvgDistance(leftArm, rightArm);
+
+        if(armsSwing.Distances.Count == 300)
+        {
+            float sum = 0f;
+            foreach(float f in armsSwing.SwingPeaks)
+                sum += f;
+            float avg = sum/armsSwing.SwingPeaks.Count;
+            Debug.Log("AVG: " + avg );
+            Debug.Log("H: " + characterHeight);
+            Debug.Log("RAPPORTO: " + characterHeight/avg); // >1 --> bracciate più corte dell'altezza
+            PlotValues(armsSwing);
+        }
+    }
+
+  
+    public void PlotValues(SwingObject obj)
+    {
+        StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < obj.Distances.Count -1 ; i++)
+                sb.Append(obj.Distances[i].ToString("F4").Replace(",", ".") + ",");
+            sb.Append(obj.Distances[obj.Distances.Count-1].ToString("F4").Replace(",", "."));
+        string arg1 = sb.ToString();
+        string arg2 = obj.Distances.Count.ToString();
+
         ProcessStartInfo start = new ProcessStartInfo();
         start.FileName = @"C:\Users\pesca\AppData\Local\Microsoft\WindowsApps\PythonSoftwareFoundation.Python.3.8_qbz5n2kfra8p0\python3.exe";
-        start.Arguments = $" -i \"{cmd}\" \"{arg1}\" \"{arg2}\"";
+        start.Arguments = $" -i \"{pyScriptPath}\" \"{arg1}\" \"{arg2}\"";
         start.UseShellExecute = true;
         start.CreateNoWindow = true;
         using (Process process = Process.Start(start))
@@ -188,7 +166,6 @@ public class ReId : MonoBehaviour
                                          joints[0].transform.position);
         return res;
     }
-
 
     private float BodyConvexTriangulation(Vector3 point1, Vector3 point2, Vector3 point3)
     {
