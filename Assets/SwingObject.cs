@@ -26,9 +26,9 @@ namespace SwingClass
     public float Lambda { get => lambda; set => lambda = value; }
     public List<float> Distances { get => distances; set => distances = value; }
 
-        public void AvgDistance(Vector2 p1, Vector2 p2)
+        public void AvgDistance(Vector3 p1, Vector3 p2)
     {
-        float newValue = Vector2.Distance(p1, p2);
+        float newValue = Vector3.Distance(p1, p2);
         distances.Add(newValue);
 
         if(lastValue != 0)

@@ -35,7 +35,6 @@ public class ReId : MonoBehaviour
     private float characterHeight;
     // campi per steplength
     private SwingObject feetSwing;
-    private SwingObject armsSwing;
     public const string pyScriptPath = @"C:\Users\pesca\Person Re-Id\Assets\plot.py";
 
     // Start is called before the first frame update
@@ -43,14 +42,12 @@ public class ReId : MonoBehaviour
     {
         characterHeight = joints[15].transform.position.y - joints[16].transform.position.y;
         feetSwing = new SwingObject(characterHeight/110);
-        armsSwing = new SwingObject(characterHeight/110);
     }
 
     // Update is called once per frame
     void Update()
     {
-        // StepLength();
-        ArmSwingLength();
+        StepLength();
     }
 
 
@@ -59,8 +56,8 @@ public class ReId : MonoBehaviour
     {   
         // calcolo ampiezza del passo
         // la calcolo come la distanza media (prendendo solo le coordinate x e z) dei piedi
-        Vector2 leftFoot = new Vector2(joints[14].transform.position.x, joints[14].transform.position.z);
-        Vector2 rightFoot = new Vector2(joints[11].transform.position.x, joints[11].transform.position.z);
+        Vector3 leftFoot = joints[14].transform.position;
+        Vector3 rightFoot = joints[11].transform.position;
         feetSwing.AvgDistance(leftFoot, rightFoot);
 
 
@@ -77,26 +74,6 @@ public class ReId : MonoBehaviour
         }
     }
 
-    private void ArmSwingLength()
-    {
-        Vector2 leftArm = new Vector2(joints[7].transform.position.x, joints[7].transform.position.z);
-        Vector2 rightArm = new Vector2(joints[4].transform.position.x, joints[4].transform.position.z);
-        armsSwing.AvgDistance(leftArm, rightArm);
-
-        if(armsSwing.Distances.Count == 300)
-        {
-            float sum = 0f;
-            foreach(float f in armsSwing.SwingPeaks)
-                sum += f;
-            float avg = sum/armsSwing.SwingPeaks.Count;
-            Debug.Log("AVG: " + avg );
-            Debug.Log("H: " + characterHeight);
-            Debug.Log("RAPPORTO: " + characterHeight/avg); // >1 --> bracciate più corte dell'altezza
-            PlotValues(armsSwing);
-        }
-    }
-
-  
     public void PlotValues(SwingObject obj)
     {
         StringBuilder sb = new StringBuilder();
@@ -115,16 +92,6 @@ public class ReId : MonoBehaviour
         {
             
         }
-    }
-
-    private void PrintJointsCoord()
-    {
-        StringBuilder sb = new StringBuilder("Joint positions\n");
-        foreach( GameObject joint in joints)
-        {
-            sb.AppendLine(joint.name +  " : " + joint.transform.position);
-        }
-        textObject.text = sb.ToString();
     }
 
     private float[] BodyOpenness()
@@ -191,5 +158,53 @@ public class ReId : MonoBehaviour
         // ricavo gamma
         float thetaG = 180.0f - thetaA - thetaB;
         return (thetaB / thetaA) - (thetaG / thetaA);
+    }
+
+    private void OnDrawGizmos() 
+    {
+        // first sphere
+        Gizmos.color = Color.magenta;
+        Gizmos.DrawSphere(joints[15].transform.position, 0.06f);
+        // neck to head
+        DrawLineAndSphere(joints[15].transform.position, joints[0].transform.position, Color.magenta);
+        // neck to chest
+        DrawLineAndSphere(joints[0].transform.position, joints[1].transform.position, Color.red);
+        // chest to  shoulder
+        DrawLineAndSphere(joints[1].transform.position, joints[5].transform.position, Color.green);
+        // l shoulder to l elbow
+        DrawLineAndSphere(joints[5].transform.position, joints[6].transform.position, Color.green);
+        // l elbow to l wrist
+        DrawLineAndSphere(joints[6].transform.position, joints[7].transform.position, Color.green);
+        // chesto to r shoulder
+        DrawLineAndSphere(joints[1].transform.position, joints[2].transform.position, Color.yellow);
+        // r shoulder to r elbow
+        DrawLineAndSphere(joints[2].transform.position, joints[3].transform.position, Color.yellow);
+        // r elbow to r wrist
+        DrawLineAndSphere(joints[3].transform.position, joints[4].transform.position, Color.yellow);
+        // chest to hip middle
+        DrawLineAndSphere(joints[1].transform.position, joints[8].transform.position, Color.red);
+        // hip middle to l hip 
+        DrawLineAndSphere(joints[8].transform.position, joints[12].transform.position, Color.blue);
+        // l hip to l knee
+        DrawLineAndSphere(joints[12].transform.position, joints[13].transform.position, Color.blue);
+        // l knee to l ankle
+        DrawLineAndSphere(joints[13].transform.position, joints[14].transform.position, Color.blue);
+        // l ankle to l foot
+        DrawLineAndSphere(joints[14].transform.position, joints[16].transform.position, Color.blue);
+        // hip middle to r hip
+        DrawLineAndSphere(joints[8].transform.position, joints[9].transform.position, Color.cyan);
+        // r hip to r knee
+        DrawLineAndSphere(joints[9].transform.position, joints[10].transform.position, Color.cyan);
+        // r knee to r ankle
+        DrawLineAndSphere(joints[10].transform.position, joints[11].transform.position, Color.cyan);
+        // r ankle to r foot
+        DrawLineAndSphere(joints[11].transform.position, joints[17].transform.position, Color.cyan);
+    }
+
+    private void DrawLineAndSphere(Vector3 from, Vector3 to, Color color, float radius = 0.06f)
+    {
+        Gizmos.color = color;
+        Gizmos.DrawLine(from, to);
+        Gizmos.DrawSphere(to, radius);
     }
 }
