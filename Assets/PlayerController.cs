@@ -51,5 +51,20 @@ public class PlayerController : MonoBehaviour
             anim.SetFloat("longwalk", 1);
         else
             anim.SetFloat("longwalk", 0);
+        
+        // Hunchback Walk
+        if (Input.GetKey(KeyCode.G))
+            anim.SetFloat("hunchwalk", 1);
+        else
+            anim.SetFloat("hunchwalk", 0);
+
+
+        // Hunchback Idle
+        if (Input.GetKeyDown(KeyCode.H))
+            if(anim.GetFloat("hunchback") == 1)
+                anim.SetFloat("hunchback", 0);
+            else
+                anim.SetFloat("hunchback", 1);
+            
     }
 }

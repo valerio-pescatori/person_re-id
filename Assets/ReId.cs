@@ -25,10 +25,13 @@ using SwingClass;
 // 15 => "mixamorig9:Head",
 // 16 => "mixamorig9:LeftToeBase",
 // 17 => "mixamorig9:RightToeBase"
+// 18 => "mixamorig9:Spine1"
+// 19 => "mixamorig9:Spine"
+
 
 public class ReId : MonoBehaviour
 {
-    public GameObject[] joints = new GameObject[18];
+    public GameObject[] joints = new GameObject[20];
     public Text textObject;
 
     // campi per misura1
@@ -36,6 +39,11 @@ public class ReId : MonoBehaviour
     // campi per steplength
     private SwingObject feetSwing;
     public const string pyScriptPath = @"C:\Users\pesca\Person Re-Id\Assets\plot.py";
+    
+    // POSSIBILI MISURE:
+    // 1. hunchback (gobba)
+    // 2. out-toeing (duck feet)
+
 
     // Start is called before the first frame update
     void Start()
@@ -47,11 +55,32 @@ public class ReId : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        StepLength();
+        //StepLength();
+        HunchbackFeature();
     }
 
+    private void HunchbackFeature()
+    {
+        // creo dei triangoli usando i punti del bacino, schiena e collo
+        // misuro poi i vari angoli e cerco di capire se la persona è curva
 
-    // StepLength
+        // punti dall'alto al basso:
+        // 0 => neck
+        // 1 => spine 2
+        // 18 => spine 1
+        // 19 => spine
+        // 8 => hips
+
+        //primo triangolo: hips, spine1, neck
+        float[] angles = CalculateAngles(joints[8].transform.position, joints[18].transform.position, joints[0].transform.position);
+
+        textObject.text = "angoli: \n" + angles[0].ToString() + "\n" + angles[1].ToString() + "\n" + angles[2].ToString()+ "\n\n" + 
+                        angles[1]/180;
+
+        
+
+    }
+
     private void StepLength()
     {   
         // calcolo ampiezza del passo
@@ -134,7 +163,7 @@ public class ReId : MonoBehaviour
         return res;
     }
 
-    private float BodyConvexTriangulation(Vector3 point1, Vector3 point2, Vector3 point3)
+    private float[] CalculateAngles(Vector3 point1, Vector3 point2, Vector3 point3)
     {
         // lunghezze lati ab, ac, bc
         float lungA = Vector3.Distance(point1, point2);
@@ -157,7 +186,13 @@ public class ReId : MonoBehaviour
         
         // ricavo gamma
         float thetaG = 180.0f - thetaA - thetaB;
-        return (thetaB / thetaA) - (thetaG / thetaA);
+        return new float[] {thetaA, thetaB, thetaG};
+    }
+
+    private float BodyConvexTriangulation(Vector3 point1, Vector3 point2, Vector3 point3)
+    {
+        float[] angles = CalculateAngles(point1, point2, point3);
+        return (angles[1] / angles[0]) - (angles[2] / angles[0]);
     }
 
     private void OnDrawGizmos() 
@@ -175,14 +210,18 @@ public class ReId : MonoBehaviour
         DrawLineAndSphere(joints[5].transform.position, joints[6].transform.position, Color.green);
         // l elbow to l wrist
         DrawLineAndSphere(joints[6].transform.position, joints[7].transform.position, Color.green);
-        // chesto to r shoulder
+        // chest to r shoulder
         DrawLineAndSphere(joints[1].transform.position, joints[2].transform.position, Color.yellow);
         // r shoulder to r elbow
         DrawLineAndSphere(joints[2].transform.position, joints[3].transform.position, Color.yellow);
         // r elbow to r wrist
         DrawLineAndSphere(joints[3].transform.position, joints[4].transform.position, Color.yellow);
-        // chest to hip middle
-        DrawLineAndSphere(joints[1].transform.position, joints[8].transform.position, Color.red);
+        // spine2 to spine1
+        DrawLineAndSphere(joints[1].transform.position, joints[18].transform.position, new Color(1, 0.41f, 0.2f, 1));
+        // spine1 to spine
+        DrawLineAndSphere(joints[18].transform.position, joints[19].transform.position, new Color(1, 0.56f, 0.4f, 1));
+        // spine to hip
+        DrawLineAndSphere(joints[19].transform.position, joints[8].transform.position, new Color(1, 0.61f, 0.2f, 1));
         // hip middle to l hip 
         DrawLineAndSphere(joints[8].transform.position, joints[12].transform.position, Color.blue);
         // l hip to l knee

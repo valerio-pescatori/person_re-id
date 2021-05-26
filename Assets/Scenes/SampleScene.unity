@@ -123,6 +123,11 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &49546744 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: -605749304967555489, guid: 4cce97e3ad2e75c41ba72c794fd22afc, type: 3}
+  m_PrefabInstance: {fileID: 991426496}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &69641384 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: -3602770318801586004, guid: 4cce97e3ad2e75c41ba72c794fd22afc, type: 3}
@@ -283,6 +288,11 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 591642842}
   m_CullTransparentMesh: 1
+--- !u!1 &684710094 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6994285594075457977, guid: 4cce97e3ad2e75c41ba72c794fd22afc, type: 3}
+  m_PrefabInstance: {fileID: 991426496}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &699533435 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 2388248329552852245, guid: 4cce97e3ad2e75c41ba72c794fd22afc, type: 3}
@@ -817,6 +827,8 @@ MonoBehaviour:
   - {fileID: 1659624815}
   - {fileID: 804659953}
   - {fileID: 1530624992}
+  - {fileID: 49546744}
+  - {fileID: 684710094}
   textObject: {fileID: 591642844}
 --- !u!1 &1021367062 stripped
 GameObject:
