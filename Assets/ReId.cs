@@ -38,16 +38,13 @@ public class ReId : MonoBehaviour
     private float characterHeight;
     // campi per steplength
     private SwingObject feetSwing;
+    private float stepAvg;
     public const string pyScriptPath = @"C:\Users\pesca\Person Re-Id\Assets\plot.py";
-    
-    // POSSIBILI MISURE:
-    // 1. hunchback (gobba)
-    // 2. out-toeing (duck feet)
-
 
     // Start is called before the first frame update
     void Start()
     {
+        stepAvg = 0f;
         characterHeight = joints[15].transform.position.y - joints[16].transform.position.y;
         feetSwing = new SwingObject(characterHeight/110);
     }
@@ -55,12 +52,26 @@ public class ReId : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        //StepLength();
-        //HunchbackFeature();
-        OutToeingFeature();
+        StepLength();
+        var hunchAngles = HunchbackFeature();
+        var otAngles = OutToeingFeature();
+
+        StringBuilder sb = new StringBuilder("OUTPUTS\n");
+        // StepLenght outs
+        sb.AppendLine("STEPS\nStep avg: " + stepAvg);
+        sb.AppendLine("Char height: " + characterHeight);
+        sb.AppendLine("Rapporto altezza / media passo : " + characterHeight/stepAvg);
+        // Hunchback outs
+        sb.AppendLine("\nHUNCHBACK\nSpine1 angle: " + hunchAngles[1].ToString());
+        // OutToeing outs
+        sb.AppendLine("\nOUTTOEING\nLeft foot angle: " + otAngles[0].ToString());
+        sb.AppendLine("Right foot angle: " + otAngles[1].ToString());
+        // print
+        textObject.text = sb.ToString();
+
     }
 
-    private void HunchbackFeature()
+    private float[] HunchbackFeature()
     {
         // creo dei triangoli usando i punti del bacino, schiena e collo
         // misuro poi i vari angoli e cerco di capire se la persona è curva
@@ -75,11 +86,11 @@ public class ReId : MonoBehaviour
         //primo triangolo: hips, spine1, neck
         float[] angles = CalculateAngles(joints[8].transform.position, joints[18].transform.position, joints[0].transform.position);
         
-        
-        textObject.text = "angoli: \n" + angles[0].ToString() + "\n" + angles[1].ToString() + "\n" + angles[2].ToString()+ "\n\n" + angles[1]/180;
+        //textObject.text = "angoli: \n" + angles[0].ToString() + "\n" + angles[1].ToString() + "\n" + angles[2].ToString()+ "\n\n" + angles[1]/180;
+        return angles;
     }
 
-    private void OutToeingFeature()
+    private float[] OutToeingFeature()
     {
         // creo triangoli usando caviglie e punta del piede
         // misuro poi l'angolo della caviglia (+- 90° dovrebbe essere la norma)
@@ -93,7 +104,8 @@ public class ReId : MonoBehaviour
         var leftFootAngles = CalculateAngles(joints[16].transform.position, joints[14].transform.position, joints[11].transform.position);
         var rightFootAngles = CalculateAngles(joints[17].transform.position, joints[11].transform.position, joints[14].transform.position);
 
-        textObject.text = "Left foot angle: " + leftFootAngles[1].ToString() + "\nRight foot angle: " + rightFootAngles[1].ToString();
+        //textObject.text = "Left foot angle: " + leftFootAngles[1].ToString() + "\nRight foot angle: " + rightFootAngles[1].ToString();
+        return new float[]{leftFootAngles[1], rightFootAngles[1]};
     }
 
     private void StepLength()
@@ -104,16 +116,15 @@ public class ReId : MonoBehaviour
         Vector3 rightFoot = joints[11].transform.position;
         feetSwing.AvgDistance(leftFoot, rightFoot);
 
-
         if(feetSwing.Distances.Count == 300)
         {
             float sum = 0f;
             foreach(float f in feetSwing.SwingPeaks)
                 sum += f;
-            float avg = sum/feetSwing.SwingPeaks.Count;
-            Debug.Log("AVG: " + avg );
-            Debug.Log("H: " + characterHeight);
-            Debug.Log("RAPPORTO: " + characterHeight/avg); // >1 --> passi più corti dell'altezza
+            stepAvg = sum/feetSwing.SwingPeaks.Count;
+            // Debug.Log("AVG: " + avg );
+            // Debug.Log("H: " + characterHeight);
+            // Debug.Log("RAPPORTO: " + characterHeight/avg); // >1 --> passi più corti dell'altezza
             PlotValues(feetSwing);
         }
     }
@@ -134,7 +145,6 @@ public class ReId : MonoBehaviour
         start.CreateNoWindow = true;
         using (Process process = Process.Start(start))
         {
-            
         }
     }
 
