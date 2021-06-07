@@ -65,6 +65,19 @@ public class PlayerController : MonoBehaviour
                 anim.SetFloat("hunchback", 0);
             else
                 anim.SetFloat("hunchback", 1);
-            
+        
+        // Back Arc
+        if (Input.GetKeyDown(KeyCode.B))
+            if(anim.GetFloat("backarc") == 1)
+                anim.SetFloat("backarc", 0);
+            else
+                anim.SetFloat("backarc", 1);
+        
+        // OutToeing1
+        if (Input.GetKeyDown(KeyCode.M))
+            if(anim.GetFloat("ot1") == 1)
+                anim.SetFloat("ot1", 0);
+            else
+                anim.SetFloat("ot1", 1);
     }
 }

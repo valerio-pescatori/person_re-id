@@ -56,7 +56,8 @@ public class ReId : MonoBehaviour
     void Update()
     {
         //StepLength();
-        HunchbackFeature();
+        //HunchbackFeature();
+        OutToeingFeature();
     }
 
     private void HunchbackFeature()
@@ -73,12 +74,26 @@ public class ReId : MonoBehaviour
 
         //primo triangolo: hips, spine1, neck
         float[] angles = CalculateAngles(joints[8].transform.position, joints[18].transform.position, joints[0].transform.position);
-
-        textObject.text = "angoli: \n" + angles[0].ToString() + "\n" + angles[1].ToString() + "\n" + angles[2].ToString()+ "\n\n" + 
-                        angles[1]/180;
-
         
+        
+        textObject.text = "angoli: \n" + angles[0].ToString() + "\n" + angles[1].ToString() + "\n" + angles[2].ToString()+ "\n\n" + angles[1]/180;
+    }
 
+    private void OutToeingFeature()
+    {
+        // creo triangoli usando caviglie e punta del piede
+        // misuro poi l'angolo della caviglia (+- 90° dovrebbe essere la norma)
+        
+        // punti:
+        // 11 => RightFoot (ankle)
+        // 17 => RightToeBase
+        // 14 => LeftFoot
+        // 16 => LeftToeBase
+
+        var leftFootAngles = CalculateAngles(joints[16].transform.position, joints[14].transform.position, joints[11].transform.position);
+        var rightFootAngles = CalculateAngles(joints[17].transform.position, joints[11].transform.position, joints[14].transform.position);
+
+        textObject.text = "Left foot angle: " + leftFootAngles[1].ToString() + "\nRight foot angle: " + rightFootAngles[1].ToString();
     }
 
     private void StepLength()
