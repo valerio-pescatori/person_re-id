@@ -58,7 +58,7 @@ public class ReId : MonoBehaviour
 
         StringBuilder sb = new StringBuilder("OUTPUTS\n");
         // StepLenght outs
-        sb.AppendLine("STEPS\nStep avg: " + stepAvg);
+        sb.AppendLine("STEPS\nStep sdfsdf avg: " + stepAvg);
         sb.AppendLine("Char height: " + characterHeight);
         sb.AppendLine("Rapporto altezza / media passo : " + characterHeight/stepAvg);
         // Hunchback outs
