@@ -39,7 +39,8 @@ public class ReId : MonoBehaviour
     // campi per steplength
     private SwingObject feetSwing;
     private float stepAvg;
-    public const string pyScriptPath = @"C:\Users\pesca\Person Re-Id\Assets\plot.py";
+    public const string pyScriptPath = @"Assets\plot.py";
+    public const string pyExePath = @"C:\Users\Valerio\AppData\Local\Programs\Python\Python39\python.exe";
 
     // Start is called before the first frame update
     void Start()
@@ -51,23 +52,25 @@ public class ReId : MonoBehaviour
 
     // Update is called once per frame
     void Update()
-    {
-        StepLength();
-        var hunchAngles = HunchbackFeature();
-        var otAngles = OutToeingFeature();
+    {   
 
-        StringBuilder sb = new StringBuilder("OUTPUTS\n");
-        // StepLenght outs
-        sb.AppendLine("STEPS\nStep sdfsdf avg: " + stepAvg);
-        sb.AppendLine("Char height: " + characterHeight);
-        sb.AppendLine("Rapporto altezza / media passo : " + characterHeight/stepAvg);
-        // Hunchback outs
-        sb.AppendLine("\nHUNCHBACK\nSpine1 angle: " + hunchAngles[1].ToString());
-        // OutToeing outs
-        sb.AppendLine("\nOUTTOEING\nLeft foot angle: " + otAngles[0].ToString());
-        sb.AppendLine("Right foot angle: " + otAngles[1].ToString());
-        // print
-        textObject.text = sb.ToString();
+
+        // StepLength();
+        // var hunchAngles = HunchbackFeature();
+        // var otAngles = OutToeingFeature();
+
+        // StringBuilder sb = new StringBuilder("OUTPUTS\n");
+        // // StepLenght outs
+        // sb.AppendLine("STEPS\nStep sdfsdf avg: " + stepAvg);
+        // sb.AppendLine("Char height: " + characterHeight);
+        // sb.AppendLine("Rapporto altezza / media passo : " + characterHeight/stepAvg);
+        // // Hunchback outs
+        // sb.AppendLine("\nHUNCHBACK\nSpine1 angle: " + hunchAngles[1].ToString());
+        // // OutToeing outs
+        // sb.AppendLine("\nOUTTOEING\nLeft foot angle: " + otAngles[0].ToString());
+        // sb.AppendLine("Right foot angle: " + otAngles[1].ToString());
+        // // print
+        // textObject.text = sb.ToString();
 
     }
 
@@ -139,7 +142,7 @@ public class ReId : MonoBehaviour
         string arg2 = obj.Distances.Count.ToString();
 
         ProcessStartInfo start = new ProcessStartInfo();
-        start.FileName = @"C:\Users\pesca\AppData\Local\Microsoft\WindowsApps\PythonSoftwareFoundation.Python.3.8_qbz5n2kfra8p0\python3.exe";
+        start.FileName = pyExePath;
         start.Arguments = $" -i \"{pyScriptPath}\" \"{arg1}\" \"{arg2}\"";
         start.UseShellExecute = true;
         start.CreateNoWindow = true;
