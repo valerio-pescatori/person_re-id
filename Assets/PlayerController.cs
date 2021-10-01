@@ -7,33 +7,54 @@ using UnityEngine.Playables;
 
 public class PlayerController : MonoBehaviour
 {
-    // public Animator anim;
+    public Animator anim;
     public AnimationClip[] animations;
     public new Animation animation;
     PlayableGraph playableGraph;
 
+    private class AnimatorReference{
+        public Animator anim;
+        public AnimationClip clip;
+        public PlayableGraph playableGraph;
 
+        public AnimatorReference(Animator anim, AnimationClip clip, PlayableGraph graph){
+            this.anim = anim;
+            this.clip = clip;
+            this.playableGraph = graph;
+        } 
+
+        
+    }
+    private static void CountLoops(object obj)
+    {   
+        Debug.Log("test");
+        AnimatorReference reference = (AnimatorReference) obj;
+        AnimationPlayableUtilities.PlayClip(reference.anim,
+                                            reference.clip,
+                                            out reference.playableGraph);
+
+    }
      // Use this for initialization
     void Start() 
-    {
-        // anim = GetComponent<Animator>();    
-
+    {  
         // test playables
-
+        Timer timer = null;
         // number of loops for each clip
-        int loops = 5;
+
+        AnimationPlayableUtilities.PlayClip(GetComponent<Animator>(),
+                                            animations[0],
+                                            out playableGraph);
+
         foreach (var clip in animations)
         {
-            // Wrap the clip in a playable
-            // Connect the Playable to an output    
-            clip.wrapMode = WrapMode.Loop;
-            AnimationPlayableUtilities.PlayClip(GetComponent<Animator>(), clip, out playableGraph);
-            
-            // trova il modo di far loopare una animazione 5 volte e poi cambiare 
-
-
+            for( var loops = 0; loops < 5; loops++)
+            {
+                timer = new Timer(CountLoops, new AnimatorReference(GetComponent<Animator>(), clip, playableGraph), 0, (int)clip.length * 1000);
+            }
         }        
     }
+
+    
 
     // Update is called once per frame
     void Update()
@@ -116,3 +137,4 @@ public class PlayerController : MonoBehaviour
         playableGraph.Destroy();
     }
 }
+
