@@ -47,30 +47,29 @@ public class ReId : MonoBehaviour
     {
         stepAvg = 0f;
         characterHeight = joints[15].transform.position.y - joints[16].transform.position.y;
-        feetSwing = new SwingObject(characterHeight/110);
+        feetSwing = new SwingObject(characterHeight / 90);
     }
 
     // Update is called once per frame
     void Update()
-    {   
+    {
+        StepLength();
+        // StepLength2();
+        var hunchAngles = HunchbackFeature();
+        var otAngles = OutToeingFeature();
 
-
-        // StepLength();
-        // var hunchAngles = HunchbackFeature();
-        // var otAngles = OutToeingFeature();
-
-        // StringBuilder sb = new StringBuilder("OUTPUTS\n");
-        // // StepLenght outs
-        // sb.AppendLine("STEPS\nStep sdfsdf avg: " + stepAvg);
-        // sb.AppendLine("Char height: " + characterHeight);
-        // sb.AppendLine("Rapporto altezza / media passo : " + characterHeight/stepAvg);
-        // // Hunchback outs
-        // sb.AppendLine("\nHUNCHBACK\nSpine1 angle: " + hunchAngles[1].ToString());
-        // // OutToeing outs
-        // sb.AppendLine("\nOUTTOEING\nLeft foot angle: " + otAngles[0].ToString());
-        // sb.AppendLine("Right foot angle: " + otAngles[1].ToString());
-        // // print
-        // textObject.text = sb.ToString();
+        StringBuilder sb = new StringBuilder("OUTPUTS\n");
+        // StepLenght outs
+        sb.AppendLine("STEPS\nStep avg: " + stepAvg);
+        sb.AppendLine("Char height: " + characterHeight);
+        sb.AppendLine("Rapporto altezza / media passo : " + characterHeight / stepAvg);
+        // Hunchback outs
+        sb.AppendLine("\nHUNCHBACK\nSpine1 angle: " + hunchAngles[1].ToString());
+        // OutToeing outs
+        sb.AppendLine("\nOUTTOEING\nLeft foot angle: " + otAngles[0].ToString());
+        sb.AppendLine("Right foot angle: " + otAngles[1].ToString());
+        // print
+        textObject.text = sb.ToString();
 
     }
 
@@ -88,7 +87,7 @@ public class ReId : MonoBehaviour
 
         //primo triangolo: hips, spine1, neck
         float[] angles = CalculateAngles(joints[8].transform.position, joints[18].transform.position, joints[0].transform.position);
-        
+
         //textObject.text = "angoli: \n" + angles[0].ToString() + "\n" + angles[1].ToString() + "\n" + angles[2].ToString()+ "\n\n" + angles[1]/180;
         return angles;
     }
@@ -97,7 +96,7 @@ public class ReId : MonoBehaviour
     {
         // creo triangoli usando caviglie e punta del piede
         // misuro poi l'angolo della caviglia (+- 90° dovrebbe essere la norma)
-        
+
         // punti:
         // 11 => RightFoot (ankle)
         // 17 => RightToeBase
@@ -108,26 +107,37 @@ public class ReId : MonoBehaviour
         var rightFootAngles = CalculateAngles(joints[17].transform.position, joints[11].transform.position, joints[14].transform.position);
 
         //textObject.text = "Left foot angle: " + leftFootAngles[1].ToString() + "\nRight foot angle: " + rightFootAngles[1].ToString();
-        return new float[]{leftFootAngles[1], rightFootAngles[1]};
+        return new float[] { leftFootAngles[1], rightFootAngles[1] };
+    }
+
+    // testo nuovo metodo per rilevare i passi
+    private void StepLength2()
+    {
+        Vector3 leftFoot = joints[14].transform.position;
+        Vector3 rightFoot = joints[11].transform.position;
+        feetSwing.AvgDistance2(leftFoot, rightFoot);
+
+        if (feetSwing.Distances.Count == 500)
+        {
+            feetSwing.calculateSteps();
+            PlotValues(feetSwing);
+        }
     }
 
     private void StepLength()
-    {   
+    {
         // calcolo ampiezza del passo
         // la calcolo come la distanza media (prendendo solo le coordinate x e z) dei piedi
         Vector3 leftFoot = joints[14].transform.position;
         Vector3 rightFoot = joints[11].transform.position;
         feetSwing.AvgDistance(leftFoot, rightFoot);
 
-        if(feetSwing.Distances.Count == 300)
+        if (feetSwing.Distances.Count == 1000)
         {
             float sum = 0f;
-            foreach(float f in feetSwing.SwingPeaks)
+            foreach (float f in feetSwing.SwingPeaks)
                 sum += f;
-            stepAvg = sum/feetSwing.SwingPeaks.Count;
-            // Debug.Log("AVG: " + avg );
-            // Debug.Log("H: " + characterHeight);
-            // Debug.Log("RAPPORTO: " + characterHeight/avg); // >1 --> passi più corti dell'altezza
+            stepAvg = sum / feetSwing.SwingPeaks.Count;
             PlotValues(feetSwing);
         }
     }
@@ -135,9 +145,9 @@ public class ReId : MonoBehaviour
     public void PlotValues(SwingObject obj)
     {
         StringBuilder sb = new StringBuilder();
-            for (int i = 0; i < obj.Distances.Count -1 ; i++)
-                sb.Append(obj.Distances[i].ToString("F4").Replace(",", ".") + ",");
-            sb.Append(obj.Distances[obj.Distances.Count-1].ToString("F4").Replace(",", "."));
+        for (int i = 0; i < obj.Distances.Count - 1; i++)
+            sb.Append(obj.Distances[i].ToString("F4").Replace(",", ".") + ",");
+        sb.Append(obj.Distances[obj.Distances.Count - 1].ToString("F4").Replace(",", "."));
         string arg1 = sb.ToString();
         string arg2 = obj.Distances.Count.ToString();
 
@@ -162,7 +172,7 @@ public class ReId : MonoBehaviour
         Vector3 ankleLeft = joints[11].transform.position;
         Vector3 ankleRight = joints[14].transform.position;
         Vector3 anklesAvg = Vector3.zero;
-        for (int i = 0; i<3; i++)
+        for (int i = 0; i < 3; i++)
         {
             anklesAvg[i] = (ankleLeft[i] + ankleRight[i]) / 2;
         }
@@ -204,17 +214,17 @@ public class ReId : MonoBehaviour
         float cSqr = lungC * lungC;
 
         // alfa e beta
-        float thetaA = (float)Math.Acos( (double) ((bSqr + cSqr - aSqr) / (2* lungB * lungC)) );
-        float thetaB = (float)Math.Acos( (double) ((aSqr + cSqr - bSqr) / (2* lungA * lungC)) );
+        float thetaA = (float)Math.Acos((double)((bSqr + cSqr - aSqr) / (2 * lungB * lungC)));
+        float thetaB = (float)Math.Acos((double)((aSqr + cSqr - bSqr) / (2 * lungA * lungC)));
 
         // converto in gradi
-        thetaA *= 180.0f/(float)Math.PI; 
-        thetaB *= 180.0f/(float)Math.PI;
+        thetaA *= 180.0f / (float)Math.PI;
+        thetaB *= 180.0f / (float)Math.PI;
 
-        
+
         // ricavo gamma
         float thetaG = 180.0f - thetaA - thetaB;
-        return new float[] {thetaA, thetaB, thetaG};
+        return new float[] { thetaA, thetaB, thetaG };
     }
 
     private float BodyConvexTriangulation(Vector3 point1, Vector3 point2, Vector3 point3)
@@ -223,7 +233,7 @@ public class ReId : MonoBehaviour
         return (angles[1] / angles[0]) - (angles[2] / angles[0]);
     }
 
-    private void OnDrawGizmos() 
+    private void OnDrawGizmos()
     {
         // first sphere
         Gizmos.color = Color.magenta;

@@ -1,19 +1,19 @@
 m_ProjectFiles:
   m_ManifestFileStatus:
-    m_FilePath: C:/Users/pesca/Person Re-Id/Packages/manifest.json
+    m_FilePath: C:/Users/Valerio/Desktop/Person Re-Id/Packages/manifest.json
     m_PathExists: 1
     m_ContentTrackingEnabled: 1
     m_ModificationDate:
       serializedVersion: 2
-      ticks: 637687624405135726
+      ticks: 637689308977455650
     m_Hash: 3755555522
   m_LockFileStatus:
-    m_FilePath: C:/Users/pesca/Person Re-Id/Packages/packages-lock.json
+    m_FilePath: C:/Users/Valerio/Desktop/Person Re-Id/Packages/packages-lock.json
     m_PathExists: 1
     m_ContentTrackingEnabled: 1
     m_ModificationDate:
       serializedVersion: 2
-      ticks: 637687624412195914
+      ticks: 637689309564007849
     m_Hash: 1781890122
 m_EmbeddedPackageManifests:
   m_ManifestsStatus: {}
@@ -25,7 +25,7 @@ m_PackageAssets:
       isDirectDependency: 1
       version: 2.6.4
       source: 1
-      resolvedPath: C:\Users\pesca\Person Re-Id\Library\PackageCache\com.unity.cinemachine@2.6.4
+      resolvedPath: C:\Users\Valerio\Desktop\Person Re-Id\Library\PackageCache\com.unity.cinemachine@2.6.4
       assetPath: Packages/com.unity.cinemachine
       name: com.unity.cinemachine
       displayName: Cinemachine
@@ -168,7 +168,7 @@ m_PackageAssets:
       isDirectDependency: 1
       version: 1.3.9
       source: 1
-      resolvedPath: C:\Users\pesca\Person Re-Id\Library\PackageCache\com.unity.collab-proxy@1.3.9
+      resolvedPath: C:\Users\Valerio\Desktop\Person Re-Id\Library\PackageCache\com.unity.collab-proxy@1.3.9
       assetPath: Packages/com.unity.collab-proxy
       name: com.unity.collab-proxy
       displayName: Unity Collaborate
@@ -279,7 +279,7 @@ m_PackageAssets:
       isDirectDependency: 1
       version: 2.0.7
       source: 1
-      resolvedPath: C:\Users\pesca\Person Re-Id\Library\PackageCache\com.unity.ide.rider@2.0.7
+      resolvedPath: C:\Users\Valerio\Desktop\Person Re-Id\Library\PackageCache\com.unity.ide.rider@2.0.7
       assetPath: Packages/com.unity.ide.rider
       name: com.unity.ide.rider
       displayName: JetBrains Rider Editor
@@ -386,7 +386,7 @@ m_PackageAssets:
       isDirectDependency: 1
       version: 1.2.4
       source: 1
-      resolvedPath: C:\Users\pesca\Person Re-Id\Library\PackageCache\com.unity.ide.vscode@1.2.4
+      resolvedPath: C:\Users\Valerio\Desktop\Person Re-Id\Library\PackageCache\com.unity.ide.vscode@1.2.4
       assetPath: Packages/com.unity.ide.vscode
       name: com.unity.ide.vscode
       displayName: Visual Studio Code Editor
@@ -457,7 +457,7 @@ m_PackageAssets:
       isDirectDependency: 1
       version: 0.2.1-preview.3
       source: 5
-      resolvedPath: C:\Users\pesca\Person Re-Id\Library\PackageCache\com.unity.playablegraph-visualizer@cfb3a9f75d
+      resolvedPath: C:\Users\Valerio\Desktop\Person Re-Id\Library\PackageCache\com.unity.playablegraph-visualizer@cfb3a9f75d
       assetPath: Packages/com.unity.playablegraph-visualizer
       name: com.unity.playablegraph-visualizer
       displayName: PlayableGraph Visualizer
@@ -511,7 +511,7 @@ m_PackageAssets:
       isDirectDependency: 1
       version: 1.1.22
       source: 1
-      resolvedPath: C:\Users\pesca\Person Re-Id\Library\PackageCache\com.unity.test-framework@1.1.22
+      resolvedPath: C:\Users\Valerio\Desktop\Person Re-Id\Library\PackageCache\com.unity.test-framework@1.1.22
       assetPath: Packages/com.unity.test-framework
       name: com.unity.test-framework
       displayName: Test Framework
@@ -606,7 +606,7 @@ m_PackageAssets:
       isDirectDependency: 1
       version: 1.4.6
       source: 1
-      resolvedPath: C:\Users\pesca\Person Re-Id\Library\PackageCache\com.unity.timeline@1.4.6
+      resolvedPath: C:\Users\Valerio\Desktop\Person Re-Id\Library\PackageCache\com.unity.timeline@1.4.6
       assetPath: Packages/com.unity.timeline
       name: com.unity.timeline
       displayName: Timeline
@@ -2565,7 +2565,7 @@ m_PackageAssets:
       isDirectDependency: 0
       version: 1.0.6
       source: 1
-      resolvedPath: C:\Users\pesca\Person Re-Id\Library\PackageCache\com.unity.ext.nunit@1.0.6
+      resolvedPath: C:\Users\Valerio\Desktop\Person Re-Id\Library\PackageCache\com.unity.ext.nunit@1.0.6
       assetPath: Packages/com.unity.ext.nunit
       name: com.unity.ext.nunit
       displayName: Custom NUnit
@@ -2623,5 +2623,5 @@ m_PackageAssets:
         path: 
   m_LocalPackages:
     m_LocalFileStatus: []
-m_ProjectPath: C:/Users/pesca/Person Re-Id/Packages
+m_ProjectPath: C:/Users/Valerio/Desktop/Person Re-Id/Packages
 m_EditorVersion: 2020.3.1f1 (77a89f25062f)
