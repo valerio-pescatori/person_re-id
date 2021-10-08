@@ -66,6 +66,16 @@ public class ReId : MonoBehaviour
         var hunchAngles = HunchbackFeature();
         var otAngles = OutToeingFeature();
 
+        if (!anim.isPlaying)
+        {
+            // serializzo e salvo in json
+            string json = JsonHelper.ToJson<JAnimation>(jAnims, true);
+            File.WriteAllText(Directory.GetCurrentDirectory() + "/data.json", json);
+
+            //stop play mode
+            UnityEditor.EditorApplication.ExitPlaymode();
+        }
+
         if (!anim.IsPlaying("mixamo.com" + (currAnim == 0 ? "" : " " + currAnim.ToString())))
         {
             // nuova animazione
@@ -81,16 +91,6 @@ public class ReId : MonoBehaviour
         jAnims[currAnim].addFrame(f);
 
         // finite le animazioni
-        if (!anim.isPlaying)
-        {
-            // serializzo e salvo in json
-            string json = JsonHelper.ToJson<JAnimation>(jAnims, true);
-            Debug.Log(json);
-            File.WriteAllText(Directory.GetCurrentDirectory() + "/data.json", json);
-
-            //stop play mode
-            UnityEditor.EditorApplication.ExitPlaymode();
-        }
 
         // StringBuilder sb = new StringBuilder("OUTPUTS\n");
         // // StepLenght outs

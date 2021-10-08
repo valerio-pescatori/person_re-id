@@ -27,11 +27,11 @@ public class PlayerController : MonoBehaviour
         // numero di frames
         // (int)Math.Ceiling(10/*60*/ / anim["mixamo.com"].length)
         anim.Play("mixamo.com");
-        for (int i = 0; i < (int)Math.Ceiling(5/*60*/ / anim["mixamo.com"].length); i++)
+        for (int i = 0; i < (int)Math.Ceiling(15/*60*/ / anim["mixamo.com"].length); i++)
             anim.PlayQueued("mixamo.com");
 
-        for (var i = 1; i < 2/*56*/; i++)
-            for (int x = 0; x < (int)Math.Ceiling(5/*60*/ / anim["mixamo.com " + i].length); x++)
+        for (var i = 1; i < 56; i++)
+            for (int x = 0; x < (int)Math.Ceiling(15/*60*/ / anim["mixamo.com " + i].length); x++)
                 anim.PlayQueued("mixamo.com " + i);
 
 
