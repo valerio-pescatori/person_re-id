@@ -833,8 +833,9 @@ MonoBehaviour:
   - {fileID: 1530624992}
   - {fileID: 49546744}
   - {fileID: 684710094}
-  textObject: {fileID: 591642844}
-  anim: {fileID: 994345335}
+  textObject: {fileID: 0}
+  anim: {fileID: 0}
+  jAnims: []
 --- !u!111 &994345335
 Animation:
   m_ObjectHideFlags: 0

@@ -1,19 +1,18 @@
 using System;
 using System.Collections.Generic;
-using UnityEngine;
 namespace ObjectsForJson
 {
+    [Serializable]
     public class JAnimation
     {
-        private float mediaLungPass { get; set; }
-        private List<JFrame> frames { get; set; }
+        public float mediaLungPass;
+        public List<JFrame> frames;
         private float lambda;
 
         public JAnimation(float lambda) : this()
         {
             this.lambda = lambda;
         }
-
 
         public JAnimation() { }
 

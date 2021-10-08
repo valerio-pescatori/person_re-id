@@ -1,12 +1,14 @@
+using System;
+
 namespace ObjectsForJson
 {
-    // Classe per rappresentare un singolo frame delle  
+    [Serializable]
     public class JFrame
     {
-        private float hunchback { get; set; }
-        private float outToeingR { get; set; }
-        private float outToeingL { get; set; }
-        public float feetDist { get; private set; }
+        public float hunchback;
+        public float outToeingR;
+        public float outToeingL;
+        public float feetDist;
         // non salvo la lunghezza del passo poichè la feature non è una media delle distanze tra i piedi di ogni frame.
         // Partendo da un vettore contenente la distanza tra i due piedi(joint['feet']), 
         // ricavo solo i frame in cui si suppone ci sia la massima estensione del passo (quindi i "picchi" dei valori nel vettore)

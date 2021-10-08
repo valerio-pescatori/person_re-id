@@ -6,6 +6,7 @@ using System.Diagnostics;
 using SwingClass;
 using ObjectsForJson;
 using Debug = UnityEngine.Debug;
+using System.IO;
 
 // 0  => "mixamorig9:Neck",
 // 1  => "mixamorig9:Spine2",
@@ -35,7 +36,7 @@ public class ReId : MonoBehaviour
     public Text textObject;
     public Animation anim;
     private int currAnim;
-    private JAnimation[] jAnims;
+    public JAnimation[] jAnims;
 
     // campi per misura1
     private float characterHeight;
@@ -69,7 +70,7 @@ public class ReId : MonoBehaviour
         {
             // nuova animazione
             // chiamo il metodo calculateSteps() dell'animation
-            Debug.Log(jAnims[currAnim].calculateSteps());
+            jAnims[currAnim].calculateSteps();
             // creo la nuova animazione
             jAnims[++currAnim] = new JAnimation(characterHeight / 110);
         }
@@ -79,8 +80,17 @@ public class ReId : MonoBehaviour
         JFrame f = new JFrame(otAngles[1], otAngles[0], hunchAngles[1], Vector3.Distance(leftFoot, rightFoot));
         jAnims[currAnim].addFrame(f);
 
+        // finite le animazioni
+        if (!anim.isPlaying)
+        {
+            // serializzo e salvo in json
+            string json = JsonHelper.ToJson<JAnimation>(jAnims, true);
+            Debug.Log(json);
+            File.WriteAllText(Directory.GetCurrentDirectory() + "/data.json", json);
 
-        // // StepLength2();
+            //stop play mode
+            UnityEditor.EditorApplication.ExitPlaymode();
+        }
 
         // StringBuilder sb = new StringBuilder("OUTPUTS\n");
         // // StepLenght outs
