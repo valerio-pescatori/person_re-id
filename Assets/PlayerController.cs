@@ -1,7 +1,5 @@
-using System.Threading;
 using UnityEngine;
-using UnityEngine.Animations;
-using UnityEngine.Playables;
+using System;
 
 public class PlayerController : MonoBehaviour
 {
@@ -9,22 +7,32 @@ public class PlayerController : MonoBehaviour
     Animation anim;
 
 
+    // fps limitator    
+    void Awake()
+    {
+        QualitySettings.vSyncCount = 0;
+        Application.targetFrameRate = 50;
+    }
+
     // Use this for initialization
     void Start()
     {
 
         anim = GetComponent<Animation>();
-
         // TODO: PRIMA CAMBIARE IL METODO DI RILEVAMENTO DEI PASSI
         // SCRIVI IL JSON E VEDI QUANTI DANNO NaN
-        anim.Play("mixamo.com 5");
-        for (int i = 0; i < 30; i++)
-            anim.PlayQueued("mixamo.com 5");
 
-        // for (var i = 1; i < 20; i++)
-        //     // le animazioni ripartono dal punto 0,0 
-        //     for (int x = 0; x < 10; x++)
-        //         anim.PlayQueued("mixamo.com " + i);
+        // ogni animazione gira per 60 secondi, il numero di giri è  60/anim["name"].length 
+
+        // numero di frames
+        // (int)Math.Ceiling(10/*60*/ / anim["mixamo.com"].length)
+        anim.Play("mixamo.com");
+        for (int i = 0; i < (int)Math.Ceiling(5/*60*/ / anim["mixamo.com"].length); i++)
+            anim.PlayQueued("mixamo.com");
+
+        for (var i = 1; i < 4/*56*/; i++)
+            for (int x = 0; x < (int)Math.Ceiling(5/*60*/ / anim["mixamo.com " + i].length); x++)
+                anim.PlayQueued("mixamo.com " + i);
 
 
     }
@@ -32,6 +40,9 @@ public class PlayerController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (Application.targetFrameRate != 50)
+            Application.targetFrameRate = 50;
+
         animator.SetFloat("vertical", Input.GetAxis("Vertical"));
         animator.SetFloat("horizontal", Input.GetAxis("Horizontal"));
 

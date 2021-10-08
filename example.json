@@ -1,0 +1,13 @@
+{
+  "animations": [
+    {
+      "media lunghezza passo": 1.22,
+      "frames": [
+        {
+          "out-toeing": 2.2,
+          "hunch": 2.44
+        }
+      ]
+    }
+  ]
+}

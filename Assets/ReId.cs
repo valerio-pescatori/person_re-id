@@ -1,11 +1,11 @@
-using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
 using System;
 using System.Diagnostics;
-using Debug = UnityEngine.Debug;
 using SwingClass;
+using ObjectsForJson;
+using Debug = UnityEngine.Debug;
 
 // 0  => "mixamorig9:Neck",
 // 1  => "mixamorig9:Spine2",
@@ -33,43 +33,67 @@ public class ReId : MonoBehaviour
 {
     public GameObject[] joints = new GameObject[20];
     public Text textObject;
+    public Animation anim;
+    private int currAnim;
+    private JAnimation[] jAnims;
 
     // campi per misura1
     private float characterHeight;
-    // campi per steplength
-    private SwingObject feetSwing;
-    private float stepAvg;
     public const string pyScriptPath = @"Assets\plot.py";
     public const string pyExePath = @"C:\Users\Valerio\AppData\Local\Programs\Python\Python39\python.exe";
+
 
     // Start is called before the first frame update
     void Start()
     {
-        stepAvg = 0f;
+        currAnim = 0;
+        jAnims = new JAnimation[56];
+        jAnims[0] = new JAnimation(characterHeight / 110);
         characterHeight = joints[15].transform.position.y - joints[16].transform.position.y;
-        feetSwing = new SwingObject(characterHeight / 90);
     }
 
     // Update is called once per frame
     void Update()
     {
-        StepLength();
-        // StepLength2();
+        // StepLength();   
+
+        // non chiamo più steplength ad ogni frame
+        // ad ogni frame calcolo solo le distanze
+        // poi alla fine dell'animazione chiamo il metodo per calcolare la media lunghezza passo
+
+        // calcolo feature per questo frame
         var hunchAngles = HunchbackFeature();
         var otAngles = OutToeingFeature();
 
-        StringBuilder sb = new StringBuilder("OUTPUTS\n");
-        // StepLenght outs
-        sb.AppendLine("STEPS\nStep avg: " + stepAvg);
-        sb.AppendLine("Char height: " + characterHeight);
-        sb.AppendLine("Rapporto altezza / media passo : " + characterHeight / stepAvg);
-        // Hunchback outs
-        sb.AppendLine("\nHUNCHBACK\nSpine1 angle: " + hunchAngles[1].ToString());
-        // OutToeing outs
-        sb.AppendLine("\nOUTTOEING\nLeft foot angle: " + otAngles[0].ToString());
-        sb.AppendLine("Right foot angle: " + otAngles[1].ToString());
-        // print
-        textObject.text = sb.ToString();
+        if (!anim.IsPlaying("mixamo.com" + (currAnim == 0 ? "" : " " + currAnim.ToString())))
+        {
+            // nuova animazione
+            // chiamo il metodo calculateSteps() dell'animation
+            Debug.Log(jAnims[currAnim].calculateSteps());
+            // creo la nuova animazione
+            jAnims[++currAnim] = new JAnimation(characterHeight / 110);
+        }
+        // frame attuale
+        var leftFoot = joints[14].transform.position;
+        var rightFoot = joints[11].transform.position;
+        JFrame f = new JFrame(otAngles[1], otAngles[0], hunchAngles[1], Vector3.Distance(leftFoot, rightFoot));
+        jAnims[currAnim].addFrame(f);
+
+
+        // // StepLength2();
+
+        // StringBuilder sb = new StringBuilder("OUTPUTS\n");
+        // // StepLenght outs
+        // sb.AppendLine("STEPS\nStep avg: " + stepAvg);
+        // sb.AppendLine("Char height: " + characterHeight);
+        // sb.AppendLine("Rapporto altezza / media passo : " + characterHeight / stepAvg);
+        // // Hunchback outs
+        // sb.AppendLine("\nHUNCHBACK\nSpine1 angle: " + hunchAngles[1].ToString());
+        // // OutToeing outs
+        // sb.AppendLine("\nOUTTOEING\nLeft foot angle: " + otAngles[0].ToString());
+        // sb.AppendLine("Right foot angle: " + otAngles[1].ToString());
+        // // print
+        // textObject.text = sb.ToString();
 
     }
 
@@ -111,36 +135,18 @@ public class ReId : MonoBehaviour
     }
 
     // testo nuovo metodo per rilevare i passi
-    private void StepLength2()
-    {
-        Vector3 leftFoot = joints[14].transform.position;
-        Vector3 rightFoot = joints[11].transform.position;
-        feetSwing.AvgDistance2(leftFoot, rightFoot);
+    // private void StepLength2()
+    // {
+    //     Vector3 leftFoot = joints[14].transform.position;
+    //     Vector3 rightFoot = joints[11].transform.position;
+    //     feetSwing.AvgDistance2(leftFoot, rightFoot);
 
-        if (feetSwing.Distances.Count == 500)
-        {
-            feetSwing.calculateSteps();
-            PlotValues(feetSwing);
-        }
-    }
-
-    private void StepLength()
-    {
-        // calcolo ampiezza del passo
-        // la calcolo come la distanza media (prendendo solo le coordinate x e z) dei piedi
-        Vector3 leftFoot = joints[14].transform.position;
-        Vector3 rightFoot = joints[11].transform.position;
-        feetSwing.AvgDistance(leftFoot, rightFoot);
-
-        if (feetSwing.Distances.Count == 1000)
-        {
-            float sum = 0f;
-            foreach (float f in feetSwing.SwingPeaks)
-                sum += f;
-            stepAvg = sum / feetSwing.SwingPeaks.Count;
-            PlotValues(feetSwing);
-        }
-    }
+    //     if (feetSwing.Distances.Count == 500)
+    //     {
+    //         feetSwing.calculateSteps();
+    //         PlotValues(feetSwing);
+    //     }
+    // }
 
     public void PlotValues(SwingObject obj)
     {

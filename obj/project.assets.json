@@ -1,0 +1,101 @@
+{
+  "version": 3,
+  "targets": {
+    ".NETFramework,Version=v4.7.1": {
+      "System.Json/4.7.1": {
+        "type": "package",
+        "frameworkAssemblies": [
+          "System",
+          "System.Core",
+          "mscorlib"
+        ],
+        "compile": {
+          "lib/net461/System.Json.dll": {}
+        },
+        "runtime": {
+          "lib/net461/System.Json.dll": {}
+        }
+      }
+    }
+  },
+  "libraries": {
+    "System.Json/4.7.1": {
+      "sha512": "XymImdgljgVEkd9trFSKWlNJac1Hr+L9lwFLQSUUQfFMkm88AHI6DINAMhpoiUWQIPLIqEjR702eydUb4Qb3Ng==",
+      "type": "package",
+      "path": "system.json/4.7.1",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "Icon.png",
+        "LICENSE.TXT",
+        "THIRD-PARTY-NOTICES.TXT",
+        "lib/Xamarinmac20/_._",
+        "lib/monoandroid10/_._",
+        "lib/monotouch10/_._",
+        "lib/net461/System.Json.dll",
+        "lib/net461/System.Json.xml",
+        "lib/netstandard1.0/System.Json.dll",
+        "lib/netstandard1.0/System.Json.xml",
+        "lib/netstandard2.0/System.Json.dll",
+        "lib/netstandard2.0/System.Json.xml",
+        "lib/xamarinios10/_._",
+        "lib/xamarintvos10/_._",
+        "lib/xamarinwatchos10/_._",
+        "ref/Xamarinmac20/_._",
+        "ref/monoandroid10/_._",
+        "ref/monotouch10/_._",
+        "ref/xamarinios10/_._",
+        "ref/xamarintvos10/_._",
+        "ref/xamarinwatchos10/_._",
+        "system.json.4.7.1.nupkg.sha512",
+        "system.json.nuspec",
+        "useSharedDesignerContext.txt",
+        "version.txt"
+      ]
+    }
+  },
+  "projectFileDependencyGroups": {
+    ".NETFramework,Version=v4.7.1": [
+      "System.Json >= 4.7.1"
+    ]
+  },
+  "packageFolders": {
+    "C:\\Users\\Valerio\\.nuget\\packages\\": {}
+  },
+  "project": {
+    "version": "1.0.0",
+    "restore": {
+      "projectUniqueName": "C:\\Users\\Valerio\\Desktop\\Person Re-Id\\Assembly-CSharp.csproj",
+      "projectName": "Assembly-CSharp",
+      "projectPath": "C:\\Users\\Valerio\\Desktop\\Person Re-Id\\Assembly-CSharp.csproj",
+      "packagesPath": "C:\\Users\\Valerio\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\Valerio\\Desktop\\Person Re-Id\\obj\\",
+      "projectStyle": "PackageReference",
+      "skipContentFileWrite": true,
+      "configFilePaths": [
+        "C:\\Users\\Valerio\\AppData\\Roaming\\NuGet\\NuGet.Config"
+      ],
+      "originalTargetFrameworks": [
+        "net471"
+      ],
+      "sources": {
+        "https://api.nuget.org/v3/index.json": {}
+      },
+      "frameworks": {
+        "net471": {
+          "projectReferences": {}
+        }
+      }
+    },
+    "frameworks": {
+      "net471": {
+        "dependencies": {
+          "System.Json": {
+            "target": "Package",
+            "version": "[4.7.1, )"
+          }
+        }
+      }
+    }
+  }
+}

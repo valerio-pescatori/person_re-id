@@ -4,11 +4,12 @@ using UnityEngine;
 
 namespace SwingClass
 {
+    // Uno SwingObject tiene traccia dell'oscillazione della distanza tra due punti
     public class SwingObject
     {
         private float lastValue;
         private List<float> distances; // solo x il plot
-        private List<float> swingPeaks;
+        private List<float> swingPeaks; // tiene traccia dei picchi positivi (massima estensione del passo)
         private bool trend;
         private float lambda;
         private float max;
@@ -23,6 +24,9 @@ namespace SwingClass
             this.max = float.NegativeInfinity;
             this.min = float.PositiveInfinity;
         }
+
+        // AvgDistance prende la distanza tra i due punti dati in input, la salva
+        // e poi decide, in base ai valori dei campi dell'oggetto, se si tratta di un picco positivo.
         public void AvgDistance(Vector3 p1, Vector3 p2)
         {
             float newValue = Vector3.Distance(p1, p2);
@@ -35,12 +39,15 @@ namespace SwingClass
 
             if (lastValue != 0)
             {
-                // controllo se cresce
+                // se il valore è in crescita non si tratta di un picco
+                // lambda serve per ignorare i cambiamenti irrilevanti
                 if (newValue > lastValue && Math.Abs(newValue - lastValue) > lambda)
                     trend = true;
-                // controllo se decresce
+                // se il valore è in calo potrei aver passato il picco
                 else if (newValue < lastValue && Math.Abs(newValue - lastValue) > lambda)
                 {
+                    // se prima dell'ultimo aggiornamento il valore era in crescita allora si 
+                    // tratta di un picco
                     if (trend)
                         swingPeaks.Add(lastValue);
                     trend = false;
