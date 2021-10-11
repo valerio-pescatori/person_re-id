@@ -112,6 +112,4 @@ namespace SwingClass
         public float Lambda { get => lambda; set => lambda = value; }
         public List<float> Distances { get => distances; set => distances = value; }
     }
-
-
 }

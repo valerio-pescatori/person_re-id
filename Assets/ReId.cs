@@ -37,11 +37,8 @@ public class ReId : MonoBehaviour
     public Animation anim;
     private int currAnim;
     public JAnimation[] jAnims;
-
-    // campi per misura1
     private float characterHeight;
-    public const string pyScriptPath = @"Assets\plot.py";
-    public const string pyExePath = @"C:\Users\Valerio\AppData\Local\Programs\Python\Python39\python.exe";
+
 
 
     // Start is called before the first frame update
@@ -49,7 +46,7 @@ public class ReId : MonoBehaviour
     {
         currAnim = 0;
         jAnims = new JAnimation[56];
-        jAnims[0] = new JAnimation(characterHeight / 110);
+        jAnims[0] = new JAnimation(characterHeight / 110, currAnim);
         characterHeight = joints[15].transform.position.y - joints[16].transform.position.y;
     }
 
@@ -66,6 +63,7 @@ public class ReId : MonoBehaviour
         var hunchAngles = HunchbackFeature();
         var otAngles = OutToeingFeature();
 
+        // se l'Animation component non sta riproducendo alcuna animazione
         if (!anim.isPlaying)
         {
             // serializzo e salvo in json
@@ -76,21 +74,22 @@ public class ReId : MonoBehaviour
             UnityEditor.EditorApplication.ExitPlaymode();
         }
 
+
+        // se in questo frame eseguo un'animazione diversa da quella precedente
         if (!anim.IsPlaying("mixamo.com" + (currAnim == 0 ? "" : " " + currAnim.ToString())))
         {
             // nuova animazione
             // chiamo il metodo calculateSteps() dell'animation
-            jAnims[currAnim].calculateSteps();
+            jAnims[currAnim].CalculateSteps(true);
             // creo la nuova animazione
-            jAnims[++currAnim] = new JAnimation(characterHeight / 110);
+            jAnims[++currAnim] = new JAnimation(characterHeight / 110, currAnim);
         }
-        // frame attuale
+
+        // calcolo e salvo i valori per il frame attuale
         var leftFoot = joints[14].transform.position;
         var rightFoot = joints[11].transform.position;
         JFrame f = new JFrame(otAngles[1], otAngles[0], hunchAngles[1], Vector3.Distance(leftFoot, rightFoot));
-        jAnims[currAnim].addFrame(f);
-
-        // finite le animazioni
+        jAnims[currAnim].AddFrame(f);
 
         // StringBuilder sb = new StringBuilder("OUTPUTS\n");
         // // StepLenght outs
@@ -142,39 +141,6 @@ public class ReId : MonoBehaviour
 
         //textObject.text = "Left foot angle: " + leftFootAngles[1].ToString() + "\nRight foot angle: " + rightFootAngles[1].ToString();
         return new float[] { leftFootAngles[1], rightFootAngles[1] };
-    }
-
-    // testo nuovo metodo per rilevare i passi
-    // private void StepLength2()
-    // {
-    //     Vector3 leftFoot = joints[14].transform.position;
-    //     Vector3 rightFoot = joints[11].transform.position;
-    //     feetSwing.AvgDistance2(leftFoot, rightFoot);
-
-    //     if (feetSwing.Distances.Count == 500)
-    //     {
-    //         feetSwing.calculateSteps();
-    //         PlotValues(feetSwing);
-    //     }
-    // }
-
-    public void PlotValues(SwingObject obj)
-    {
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < obj.Distances.Count - 1; i++)
-            sb.Append(obj.Distances[i].ToString("F4").Replace(",", ".") + ",");
-        sb.Append(obj.Distances[obj.Distances.Count - 1].ToString("F4").Replace(",", "."));
-        string arg1 = sb.ToString();
-        string arg2 = obj.Distances.Count.ToString();
-
-        ProcessStartInfo start = new ProcessStartInfo();
-        start.FileName = pyExePath;
-        start.Arguments = $" -i \"{pyScriptPath}\" \"{arg1}\" \"{arg2}\"";
-        start.UseShellExecute = true;
-        start.CreateNoWindow = true;
-        using (Process process = Process.Start(start))
-        {
-        }
     }
 
     private float[] BodyOpenness()
