@@ -38,6 +38,7 @@ public class ReId : MonoBehaviour
     private int currAnim;
     public JAnimation[] jAnims;
     private float characterHeight;
+    public const bool PLOT = false;
 
 
 
@@ -64,25 +65,27 @@ public class ReId : MonoBehaviour
         var otAngles = OutToeingFeature();
 
         // se l'Animation component non sta riproducendo alcuna animazione
-        if (!anim.isPlaying)
-        {
-            // serializzo e salvo in json
-            string json = JsonHelper.ToJson<JAnimation>(jAnims, true);
-            File.WriteAllText(Directory.GetCurrentDirectory() + "/data.json", json);
-
-            //stop play mode
-            UnityEditor.EditorApplication.ExitPlaymode();
-        }
 
 
         // se in questo frame eseguo un'animazione diversa da quella precedente
         if (!anim.IsPlaying("mixamo.com" + (currAnim == 0 ? "" : " " + currAnim.ToString())))
         {
             // nuova animazione
-            // chiamo il metodo calculateSteps() dell'animation
-            jAnims[currAnim].CalculateSteps(true);
+            // chiamo il metodo calculateFeatures() dell'animation
+            jAnims[currAnim].CalculateFeatures(PLOT);
             // creo la nuova animazione
-            jAnims[++currAnim] = new JAnimation(characterHeight / 110, currAnim);
+            if (currAnim != 55)
+                jAnims[++currAnim] = new JAnimation(characterHeight / 110, currAnim);
+        }
+
+        if (!anim.isPlaying)
+        {
+            // serializzo e salvo in json
+            string json = JsonHelper.ToJson<JAnimation>(jAnims, true);
+            File.WriteAllText(Directory.GetCurrentDirectory() + "/training_data.json", json);
+
+            //stop play mode
+            UnityEditor.EditorApplication.ExitPlaymode();
         }
 
         // calcolo e salvo i valori per il frame attuale
@@ -91,18 +94,14 @@ public class ReId : MonoBehaviour
         JFrame f = new JFrame(otAngles[1], otAngles[0], hunchAngles[1], Vector3.Distance(leftFoot, rightFoot));
         jAnims[currAnim].AddFrame(f);
 
-        // StringBuilder sb = new StringBuilder("OUTPUTS\n");
-        // // StepLenght outs
-        // sb.AppendLine("STEPS\nStep avg: " + stepAvg);
-        // sb.AppendLine("Char height: " + characterHeight);
-        // sb.AppendLine("Rapporto altezza / media passo : " + characterHeight / stepAvg);
-        // // Hunchback outs
-        // sb.AppendLine("\nHUNCHBACK\nSpine1 angle: " + hunchAngles[1].ToString());
-        // // OutToeing outs
-        // sb.AppendLine("\nOUTTOEING\nLeft foot angle: " + otAngles[0].ToString());
-        // sb.AppendLine("Right foot angle: " + otAngles[1].ToString());
-        // // print
-        // textObject.text = sb.ToString();
+        StringBuilder sb = new StringBuilder("OUTPUTS\n");
+        // Hunchback outs
+        sb.AppendLine("\nHUNCHBACK\nSpine1 angle: " + hunchAngles[1].ToString());
+        // OutToeing outs
+        sb.AppendLine("\nOUTTOEING\nLeft foot angle: " + otAngles[0].ToString());
+        sb.AppendLine("Right foot angle: " + otAngles[1].ToString());
+        // print
+        textObject.text = sb.ToString();
 
     }
 
@@ -135,11 +134,17 @@ public class ReId : MonoBehaviour
         // 17 => RightToeBase
         // 14 => LeftFoot
         // 16 => LeftToeBase
+        // 2 => right arm (shoulder)
+        // 5 => left arm (shoulder) --> uso shoulder come punto del lato opposto per avere un angolo più realistico 
 
-        var leftFootAngles = CalculateAngles(joints[16].transform.position, joints[14].transform.position, joints[11].transform.position);
-        var rightFootAngles = CalculateAngles(joints[17].transform.position, joints[11].transform.position, joints[14].transform.position);
+        //3° punto
+        var point3r = new Vector3(joints[11].transform.position.x - 2, joints[11].transform.position.y, joints[11].transform.position.z);
+        var point3l = new Vector3(joints[14].transform.position.x + 2, joints[14].transform.position.y, joints[14].transform.position.z);
 
-        //textObject.text = "Left foot angle: " + leftFootAngles[1].ToString() + "\nRight foot angle: " + rightFootAngles[1].ToString();
+
+        var leftFootAngles = CalculateAngles(joints[16].transform.position, joints[14].transform.position, point3l);
+        var rightFootAngles = CalculateAngles(joints[17].transform.position, joints[11].transform.position, point3r);
+
         return new float[] { leftFootAngles[1], rightFootAngles[1] };
     }
 

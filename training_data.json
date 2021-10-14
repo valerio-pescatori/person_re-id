@@ -1,0 +1,396 @@
+{
+  "Items": [
+    {
+      "mediaLungPass": 1.8505163192749024,
+      "mediaHunchBack": 171.89662170410157,
+      "mediaOutToeingL": 111.74922180175781,
+      "mediaOutToeingR": 116.19139099121094,
+      "index": 0
+    },
+    {
+      "mediaLungPass": 2.5617966651916506,
+      "mediaHunchBack": 152.2220458984375,
+      "mediaOutToeingL": 104.60404205322266,
+      "mediaOutToeingR": 114.6592025756836,
+      "index": 1
+    },
+    {
+      "mediaLungPass": 2.1319119930267336,
+      "mediaHunchBack": 166.648681640625,
+      "mediaOutToeingL": 111.17526245117188,
+      "mediaOutToeingR": 108.79788208007813,
+      "index": 2
+    },
+    {
+      "mediaLungPass": 1.8511966466903687,
+      "mediaHunchBack": 175.8510284423828,
+      "mediaOutToeingL": 103.50541687011719,
+      "mediaOutToeingR": 115.4913101196289,
+      "index": 3
+    },
+    {
+      "mediaLungPass": 2.071730613708496,
+      "mediaHunchBack": 175.18994140625,
+      "mediaOutToeingL": 111.6338882446289,
+      "mediaOutToeingR": 110.3570785522461,
+      "index": 4
+    },
+    {
+      "mediaLungPass": 0.8810176849365234,
+      "mediaHunchBack": 172.9437713623047,
+      "mediaOutToeingL": 111.0683822631836,
+      "mediaOutToeingR": 105.37007904052735,
+      "index": 5
+    },
+    {
+      "mediaLungPass": 1.1873353719711304,
+      "mediaHunchBack": 171.858154296875,
+      "mediaOutToeingL": 115.63461303710938,
+      "mediaOutToeingR": 106.70779418945313,
+      "index": 6
+    },
+    {
+      "mediaLungPass": 1.556384563446045,
+      "mediaHunchBack": 170.53941345214845,
+      "mediaOutToeingL": 105.39897918701172,
+      "mediaOutToeingR": 106.12181854248047,
+      "index": 7
+    },
+    {
+      "mediaLungPass": 1.7710661888122559,
+      "mediaHunchBack": 176.2431640625,
+      "mediaOutToeingL": 105.34397888183594,
+      "mediaOutToeingR": 109.55732727050781,
+      "index": 8
+    },
+    {
+      "mediaLungPass": 1.9879649877548218,
+      "mediaHunchBack": 177.89010620117188,
+      "mediaOutToeingL": 109.87035369873047,
+      "mediaOutToeingR": 113.44234466552735,
+      "index": 9
+    },
+    {
+      "mediaLungPass": 1.7305577993392945,
+      "mediaHunchBack": 167.03073120117188,
+      "mediaOutToeingL": 140.9468231201172,
+      "mediaOutToeingR": 111.18486022949219,
+      "index": 10
+    },
+    {
+      "mediaLungPass": 2.2588398456573488,
+      "mediaHunchBack": 178.34466552734376,
+      "mediaOutToeingL": 111.7514877319336,
+      "mediaOutToeingR": 117.94055938720703,
+      "index": 11
+    },
+    {
+      "mediaLungPass": 1.4084632396697999,
+      "mediaHunchBack": 159.33172607421876,
+      "mediaOutToeingL": 101.33760070800781,
+      "mediaOutToeingR": 110.76051330566406,
+      "index": 12
+    },
+    {
+      "mediaLungPass": 1.898037075996399,
+      "mediaHunchBack": 174.18829345703126,
+      "mediaOutToeingL": 94.36377716064453,
+      "mediaOutToeingR": 96.66364288330078,
+      "index": 13
+    },
+    {
+      "mediaLungPass": 2.2524259090423586,
+      "mediaHunchBack": 174.75994873046876,
+      "mediaOutToeingL": 111.40801239013672,
+      "mediaOutToeingR": 110.263916015625,
+      "index": 14
+    },
+    {
+      "mediaLungPass": 2.507147789001465,
+      "mediaHunchBack": 158.2666778564453,
+      "mediaOutToeingL": 114.3181381225586,
+      "mediaOutToeingR": 115.55827331542969,
+      "index": 15
+    },
+    {
+      "mediaLungPass": 2.016108512878418,
+      "mediaHunchBack": 158.00582885742188,
+      "mediaOutToeingL": 101.54063415527344,
+      "mediaOutToeingR": 103.567138671875,
+      "index": 16
+    },
+    {
+      "mediaLungPass": 1.8435460329055787,
+      "mediaHunchBack": 171.78240966796876,
+      "mediaOutToeingL": 110.73632049560547,
+      "mediaOutToeingR": 114.65251922607422,
+      "index": 17
+    },
+    {
+      "mediaLungPass": 1.9909303188323975,
+      "mediaHunchBack": 165.26199340820313,
+      "mediaOutToeingL": 98.65638732910156,
+      "mediaOutToeingR": 110.51012420654297,
+      "index": 18
+    },
+    {
+      "mediaLungPass": 1.8920704126358033,
+      "mediaHunchBack": 173.08595275878907,
+      "mediaOutToeingL": 109.47098541259766,
+      "mediaOutToeingR": 110.20195770263672,
+      "index": 19
+    },
+    {
+      "mediaLungPass": 1.6766464710235596,
+      "mediaHunchBack": 174.9227294921875,
+      "mediaOutToeingL": 113.56810760498047,
+      "mediaOutToeingR": 116.88768768310547,
+      "index": 20
+    },
+    {
+      "mediaLungPass": 1.9007328748703004,
+      "mediaHunchBack": 163.9051513671875,
+      "mediaOutToeingL": 111.0321044921875,
+      "mediaOutToeingR": 105.83450317382813,
+      "index": 21
+    },
+    {
+      "mediaLungPass": 1.8194122314453126,
+      "mediaHunchBack": 174.71055603027345,
+      "mediaOutToeingL": 111.49890899658203,
+      "mediaOutToeingR": 109.318115234375,
+      "index": 22
+    },
+    {
+      "mediaLungPass": 2.233621835708618,
+      "mediaHunchBack": 170.43031311035157,
+      "mediaOutToeingL": 124.23049926757813,
+      "mediaOutToeingR": 100.39444732666016,
+      "index": 23
+    },
+    {
+      "mediaLungPass": 1.8316353559494019,
+      "mediaHunchBack": 172.49319458007813,
+      "mediaOutToeingL": 109.32084655761719,
+      "mediaOutToeingR": 104.45536041259766,
+      "index": 24
+    },
+    {
+      "mediaLungPass": 0.0,
+      "mediaHunchBack": 171.03814697265626,
+      "mediaOutToeingL": 124.83866119384766,
+      "mediaOutToeingR": 93.8011703491211,
+      "index": 25
+    },
+    {
+      "mediaLungPass": 1.909521460533142,
+      "mediaHunchBack": 171.37489318847657,
+      "mediaOutToeingL": 111.05207824707031,
+      "mediaOutToeingR": 106.64852142333985,
+      "index": 26
+    },
+    {
+      "mediaLungPass": 2.098397731781006,
+      "mediaHunchBack": 168.88063049316407,
+      "mediaOutToeingL": 111.1910629272461,
+      "mediaOutToeingR": 109.2030258178711,
+      "index": 27
+    },
+    {
+      "mediaLungPass": 1.6805092096328736,
+      "mediaHunchBack": 173.31260681152345,
+      "mediaOutToeingL": 112.0208740234375,
+      "mediaOutToeingR": 106.97488403320313,
+      "index": 28
+    },
+    {
+      "mediaLungPass": 1.8000119924545289,
+      "mediaHunchBack": 149.0993194580078,
+      "mediaOutToeingL": 101.62361145019531,
+      "mediaOutToeingR": 120.4881820678711,
+      "index": 29
+    },
+    {
+      "mediaLungPass": 1.3171701431274415,
+      "mediaHunchBack": 163.32334899902345,
+      "mediaOutToeingL": 103.02655029296875,
+      "mediaOutToeingR": 115.14730072021485,
+      "index": 30
+    },
+    {
+      "mediaLungPass": 1.7229276895523072,
+      "mediaHunchBack": 172.2707061767578,
+      "mediaOutToeingL": 121.95008087158203,
+      "mediaOutToeingR": 111.08173370361328,
+      "index": 31
+    },
+    {
+      "mediaLungPass": 2.1667838096618654,
+      "mediaHunchBack": 174.8579864501953,
+      "mediaOutToeingL": 110.88116455078125,
+      "mediaOutToeingR": 115.47208404541016,
+      "index": 32
+    },
+    {
+      "mediaLungPass": 2.3808364868164064,
+      "mediaHunchBack": 169.609130859375,
+      "mediaOutToeingL": 117.6400146484375,
+      "mediaOutToeingR": 120.80535125732422,
+      "index": 33
+    },
+    {
+      "mediaLungPass": 2.001300096511841,
+      "mediaHunchBack": 168.4626922607422,
+      "mediaOutToeingL": 116.31165313720703,
+      "mediaOutToeingR": 118.20113372802735,
+      "index": 34
+    },
+    {
+      "mediaLungPass": 1.7822352647781373,
+      "mediaHunchBack": 177.3334503173828,
+      "mediaOutToeingL": 107.5828857421875,
+      "mediaOutToeingR": 110.03446197509766,
+      "index": 35
+    },
+    {
+      "mediaLungPass": 1.879671335220337,
+      "mediaHunchBack": 171.2576141357422,
+      "mediaOutToeingL": 104.9316177368164,
+      "mediaOutToeingR": 99.75201416015625,
+      "index": 36
+    },
+    {
+      "mediaLungPass": 2.273573398590088,
+      "mediaHunchBack": 173.68960571289063,
+      "mediaOutToeingL": 110.57978057861328,
+      "mediaOutToeingR": 117.52143859863281,
+      "index": 37
+    },
+    {
+      "mediaLungPass": 1.5319501161575318,
+      "mediaHunchBack": 164.257568359375,
+      "mediaOutToeingL": 134.39752197265626,
+      "mediaOutToeingR": 104.08740234375,
+      "index": 38
+    },
+    {
+      "mediaLungPass": 1.7190001010894776,
+      "mediaHunchBack": 159.6693878173828,
+      "mediaOutToeingL": 123.93801879882813,
+      "mediaOutToeingR": 131.4316864013672,
+      "index": 39
+    },
+    {
+      "mediaLungPass": 2.129808187484741,
+      "mediaHunchBack": 167.94711303710938,
+      "mediaOutToeingL": 113.47358703613281,
+      "mediaOutToeingR": 116.45440673828125,
+      "index": 40
+    },
+    {
+      "mediaLungPass": 0.7984209060668945,
+      "mediaHunchBack": 175.04000854492188,
+      "mediaOutToeingL": 116.12535095214844,
+      "mediaOutToeingR": 102.8298568725586,
+      "index": 41
+    },
+    {
+      "mediaLungPass": 2.5666959285736086,
+      "mediaHunchBack": 159.68173217773438,
+      "mediaOutToeingL": 108.08922576904297,
+      "mediaOutToeingR": 116.07659149169922,
+      "index": 42
+    },
+    {
+      "mediaLungPass": 1.0592793226242066,
+      "mediaHunchBack": 170.88912963867188,
+      "mediaOutToeingL": 116.7288589477539,
+      "mediaOutToeingR": 118.52865600585938,
+      "index": 43
+    },
+    {
+      "mediaLungPass": 2.2794642448425295,
+      "mediaHunchBack": 160.3593292236328,
+      "mediaOutToeingL": 124.36796569824219,
+      "mediaOutToeingR": 121.67511749267578,
+      "index": 44
+    },
+    {
+      "mediaLungPass": 2.1443469524383547,
+      "mediaHunchBack": 141.9718780517578,
+      "mediaOutToeingL": 111.98179626464844,
+      "mediaOutToeingR": 115.1505126953125,
+      "index": 45
+    },
+    {
+      "mediaLungPass": 2.766512870788574,
+      "mediaHunchBack": 162.93263244628907,
+      "mediaOutToeingL": 126.7435073852539,
+      "mediaOutToeingR": 131.72352600097657,
+      "index": 46
+    },
+    {
+      "mediaLungPass": 2.0150575637817385,
+      "mediaHunchBack": 174.89268493652345,
+      "mediaOutToeingL": 120.78939819335938,
+      "mediaOutToeingR": 118.84207153320313,
+      "index": 47
+    },
+    {
+      "mediaLungPass": 2.7993125915527345,
+      "mediaHunchBack": 141.01165771484376,
+      "mediaOutToeingL": 120.09425354003906,
+      "mediaOutToeingR": 121.09358978271485,
+      "index": 48
+    },
+    {
+      "mediaLungPass": 2.198178291320801,
+      "mediaHunchBack": 176.7981719970703,
+      "mediaOutToeingL": 109.81319427490235,
+      "mediaOutToeingR": 115.92147064208985,
+      "index": 49
+    },
+    {
+      "mediaLungPass": 2.2025270462036135,
+      "mediaHunchBack": 171.09996032714845,
+      "mediaOutToeingL": 116.7136459350586,
+      "mediaOutToeingR": 114.49111938476563,
+      "index": 50
+    },
+    {
+      "mediaLungPass": 1.8838587999343873,
+      "mediaHunchBack": 164.11158752441407,
+      "mediaOutToeingL": 86.70771026611328,
+      "mediaOutToeingR": 117.92121124267578,
+      "index": 51
+    },
+    {
+      "mediaLungPass": 2.344756603240967,
+      "mediaHunchBack": 173.41900634765626,
+      "mediaOutToeingL": 106.43537139892578,
+      "mediaOutToeingR": 109.9039077758789,
+      "index": 52
+    },
+    {
+      "mediaLungPass": 1.7154896259307862,
+      "mediaHunchBack": 176.12867736816407,
+      "mediaOutToeingL": 116.09310150146485,
+      "mediaOutToeingR": 113.92533874511719,
+      "index": 53
+    },
+    {
+      "mediaLungPass": 2.0805439949035646,
+      "mediaHunchBack": 174.30148315429688,
+      "mediaOutToeingL": 109.8949966430664,
+      "mediaOutToeingR": 113.2537612915039,
+      "index": 54
+    },
+    {
+      "mediaLungPass": 2.288599729537964,
+      "mediaHunchBack": 152.75099182128907,
+      "mediaOutToeingL": 113.11203002929688,
+      "mediaOutToeingR": 119.26799011230469,
+      "index": 55
+    }
+  ]
+}

@@ -9,8 +9,11 @@ namespace ObjectsForJson
     public class JAnimation
     {
         public float mediaLungPass;
+        public float mediaHunchBack;
+        public float mediaOutToeingL;
+        public float mediaOutToeingR;
         public int index;
-        public List<JFrame> frames;
+        private List<JFrame> frames;
         private float lambda;
         public const string pyScriptPath = @"Python\plot.py";
         public const string pyExePath = @"C:\Users\Valerio\AppData\Local\Programs\Python\Python39\pythonw.exe";
@@ -30,8 +33,30 @@ namespace ObjectsForJson
             frames.Add(frame);
         }
 
+        public void CalculateFeatures(bool plotSteps)
+        {
+            mediaLungPass = CalculateSteps(plotSteps);
+            mediaLungPass = (mediaLungPass == float.NaN) ? 0f : mediaLungPass;
+
+            float sumHunch = 0f;
+            float sumOtL = 0f;
+            float sumOtR = 0f;
+
+            // calcolo media hunch e ot
+            frames.ForEach((f) =>
+            {
+                sumHunch += f.hunchback;
+                sumOtL += f.outToeingL;
+                sumOtR += f.outToeingR;
+            });
+
+            mediaHunchBack = sumHunch / frames.Count;
+            mediaOutToeingL = sumOtL / frames.Count;
+            mediaOutToeingR = sumOtR / frames.Count;
+        }
+
         // il campo index serve solo per dare il nome al png del plot
-        public float CalculateSteps(bool plot)
+        private float CalculateSteps(bool plot)
         {
 
             // calcola picchi e media passi
@@ -60,12 +85,7 @@ namespace ObjectsForJson
             mediaLungPass = sum / peaks.Count;
             if (plot)
                 this.Plot(index);
-            mediaLungPass = mediaLungPass == float.NaN ? 0f : mediaLungPass;
             return mediaLungPass;
-        }
-        public float CalculateSteps()
-        {
-            return CalculateSteps(false);
         }
 
         private void Plot(int index)
