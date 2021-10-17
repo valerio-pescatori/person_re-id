@@ -2,7 +2,6 @@ import torch
 import torch.nn as nn
 import json
 from pathlib import Path
-from pprint import pprint
 
 # architettura nn:
 # 1  lstm layer x local mf

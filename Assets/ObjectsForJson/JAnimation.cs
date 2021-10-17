@@ -9,7 +9,10 @@ namespace ObjectsForJson
     public class JAnimation
     {
         public float mediaLungPass;
+<<<<<<< HEAD
         // indice dell'animazione per identificarla
+=======
+>>>>>>> 7594af71d44871ecc0174cf6369fa4be76385eb5
         public int index;
         public List<JFrame> frames;
         private float lambda;
