@@ -19,19 +19,18 @@ public class PlayerController : MonoBehaviour
     {
 
         anim = GetComponent<Animation>();
-        // TODO: PRIMA CAMBIARE IL METODO DI RILEVAMENTO DEI PASSI
-        // SCRIVI IL JSON E VEDI QUANTI DANNO NaN
 
-        // ogni animazione gira per 60 secondi, il numero di giri è  60/anim["name"].length 
+        // ogni animazione gira per 60 secondi esatti a 50fps (3000 frames )
 
-        // numero di frames
-        // (int)Math.Ceiling(10/*60*/ / anim["mixamo.com"].length)
+        // N.B: PER IL TESTING STO USANDO 750 FRAMES INVECE CHE 3000: RICORDA DI MODIFICARE ANCHE IL 
+        // TAGLIO IN JANIMATION
+
         anim.Play("mixamo.com");
-        for (int i = 0; i < (int)Math.Ceiling(15/*60*/ / anim["mixamo.com"].length); i++)
+        for (int i = 0; i < (int)Math.Ceiling(750 / (anim["mixamo.com"].length * 50)); i++)
             anim.PlayQueued("mixamo.com");
 
-        for (var i = 1; i < 56; i++)
-            for (int x = 0; x < (int)Math.Ceiling(15/*60*/ / anim["mixamo.com " + i].length); x++)
+        for (var i = 1; i < 3; i++)
+            for (int x = 0; x < (int)Math.Ceiling(750 / (anim["mixamo.com " + i].length * 50)); x++)
                 anim.PlayQueued("mixamo.com " + i);
 
 

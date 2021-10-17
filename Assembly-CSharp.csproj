@@ -36,12 +36,11 @@
     <ImplicitlyExpandDesignTimeFacades>false</ImplicitlyExpandDesignTimeFacades>
   </PropertyGroup>
   <ItemGroup>
-     <Compile Include="Assets\SwingObject.cs" />
      <Compile Include="Assets\ObjectsForJson\JAnimation.cs" />
      <Compile Include="Assets\PlayerController.cs" />
      <Compile Include="Assets\ReId.cs" />
-     <Compile Include="Assets\ObjectsForJson\JFrame.cs" />
      <Compile Include="Assets\ObjectsForJson\JsonHelper.cs" />
+     <Compile Include="Assets\ObjectsForJson\JFrame.cs" />
     <Reference Include="UnityEngine">
         <HintPath>C:\Program Files\Unity\Hub\Editor\2020.3.1f1\Editor\Data\Managed\UnityEngine\UnityEngine.dll</HintPath>
     </Reference>
