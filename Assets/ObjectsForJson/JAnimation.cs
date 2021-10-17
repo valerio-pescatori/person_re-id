@@ -9,60 +9,38 @@ namespace ObjectsForJson
     public class JAnimation
     {
         public float mediaLungPass;
-        public float mediaHunchBack;
-        public float mediaOutToeingL;
-        public float mediaOutToeingR;
+        // indice dell'animazione per identificarla
         public int index;
-        private List<JFrame> frames;
+        public List<JFrame> frames;
         private float lambda;
         public const string pyScriptPath = @"Python\plot.py";
         public const string pyExePath = @"C:\Users\Valerio\AppData\Local\Programs\Python\Python39\pythonw.exe";
 
-        public JAnimation(float lambda, int index) : this()
+        public JAnimation(float lambda, int index)
         {
             this.lambda = lambda;
             this.index = index;
+            this.frames = new List<JFrame>(750);
         }
-
-        public JAnimation() { }
 
         public void AddFrame(JFrame frame)
         {
-            if (frames == null)
-                frames = new List<JFrame>();
-            frames.Add(frame);
+            if (frames.Count < 750)
+                frames.Add(frame);
         }
 
-        public void CalculateFeatures(bool plotSteps)
+        public float CalculateSteps(bool plot)
         {
-            mediaLungPass = CalculateSteps(plotSteps);
-            mediaLungPass = (mediaLungPass == float.NaN) ? 0f : mediaLungPass;
-
-            float sumHunch = 0f;
-            float sumOtL = 0f;
-            float sumOtR = 0f;
-
-            // calcolo media hunch e ot
-            frames.ForEach((f) =>
-            {
-                sumHunch += f.hunchback;
-                sumOtL += f.outToeingL;
-                sumOtR += f.outToeingR;
-            });
-
-            mediaHunchBack = sumHunch / frames.Count;
-            mediaOutToeingL = sumOtL / frames.Count;
-            mediaOutToeingR = sumOtR / frames.Count;
-        }
-
-        // il campo index serve solo per dare il nome al png del plot
-        private float CalculateSteps(bool plot)
-        {
-
             // calcola picchi e media passi
 
             // scorro i frames
             List<float> peaks = new List<float>(20);
+
+            // taglio i valori in eccesso 
+            frames.RemoveRange(750, frames.Count - 750);
+
+
+
             for (int i = 2; i < frames.Count; i++)
             {
                 // indica se nel frame attuale il trend è in crescita

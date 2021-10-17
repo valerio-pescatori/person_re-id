@@ -3,7 +3,6 @@ using UnityEngine;
 using UnityEngine.UI;
 using System;
 using System.Diagnostics;
-using SwingClass;
 using ObjectsForJson;
 using Debug = UnityEngine.Debug;
 using System.IO;
@@ -54,32 +53,39 @@ public class ReId : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        // StepLength();   
-
-        // non chiamo più steplength ad ogni frame
-        // ad ogni frame calcolo solo le distanze
-        // poi alla fine dell'animazione chiamo il metodo per calcolare la media lunghezza passo
-
         // calcolo feature per questo frame
         var hunchAngles = HunchbackFeature();
         var otAngles = OutToeingFeature();
-
-        // se l'Animation component non sta riproducendo alcuna animazione
-
 
         // se in questo frame eseguo un'animazione diversa da quella precedente
         if (!anim.IsPlaying("mixamo.com" + (currAnim == 0 ? "" : " " + currAnim.ToString())))
         {
             // nuova animazione
-            // chiamo il metodo calculateFeatures() dell'animation
-            jAnims[currAnim].CalculateFeatures(PLOT);
+            // chiamo il metodo calculateSteps() dell'animation
+            jAnims[currAnim].CalculateSteps(PLOT);
             // creo la nuova animazione
-            if (currAnim != 55)
+            if (currAnim < 55)
                 jAnims[++currAnim] = new JAnimation(characterHeight / 110, currAnim);
         }
 
+        // se l'Animation component non sta riproducendo alcuna animazione
         if (!anim.isPlaying)
         {
+            // SOLO IN FASE DI DEVELOP 
+            // serve poichè non ho ancora eseguito tutte le animazioni
+            //#######################################################################################
+            for (int i = 0; i < 56; i++)
+            {
+                var anim = jAnims[i];
+                if (anim.frames.Count == 0)
+                {
+                    //riempio di frames vuoti animazione
+                    for (int x = 0; x < 750; x++)
+                        anim.AddFrame(new JFrame(0, 0, 0, 0));
+                }
+            }
+            //#######################################################################################
+
             // serializzo e salvo in json
             string json = JsonHelper.ToJson<JAnimation>(jAnims, true);
             File.WriteAllText(Directory.GetCurrentDirectory() + "/training_data.json", json);
@@ -134,13 +140,11 @@ public class ReId : MonoBehaviour
         // 17 => RightToeBase
         // 14 => LeftFoot
         // 16 => LeftToeBase
-        // 2 => right arm (shoulder)
-        // 5 => left arm (shoulder) --> uso shoulder come punto del lato opposto per avere un angolo più realistico 
 
-        //3° punto
+        // 3° punto (si da per scontato che il persoanggio cammina in direzione di z crescente, quindi si prende punto per rendere il terzo lato perpendicolare 
+        // alla direzione in cui cammina)
         var point3r = new Vector3(joints[11].transform.position.x - 2, joints[11].transform.position.y, joints[11].transform.position.z);
         var point3l = new Vector3(joints[14].transform.position.x + 2, joints[14].transform.position.y, joints[14].transform.position.z);
-
 
         var leftFootAngles = CalculateAngles(joints[16].transform.position, joints[14].transform.position, point3l);
         var rightFootAngles = CalculateAngles(joints[17].transform.position, joints[11].transform.position, point3r);
