@@ -1,7 +1,11 @@
+from typing import Iterator
 import torch
 import torch.nn as nn
 import json
 from pathlib import Path
+from torch.optim import optimizer
+
+from torch.serialization import normalize_storage_type
 
 # architettura nn:
 # 1  lstm layer x local mf
@@ -70,15 +74,40 @@ if __name__ == "__main__":
     ## process data
     # devo separare local features da global features
     data = data["Items"]
-    local_features = []
+    train_input = []
+    train_target = torch.tensor([i for i in range(56)])
     global_features = []
-    ## struttura finale di local  = [ [val1, ..., valx], ..., [val1, ..., valx] ]
     for animation in data:
         anim_lf = []  # local feature per questa animazione
         for frame in animation["frames"]:
             anim_lf.append(list(frame.values()))
-        local_features.append(anim_lf)
+        train_input.append(anim_lf)
         global_features.append([animation["mediaLungPass"]])
 
-    local_features = torch.tensor(local_features)
-    # print(local_features.item())
+    train_input = torch.tensor(train_input)  # size [56, 750, 4]
+    global_features = torch.tensor(global_features)  # size [56, 1]
+
+    ## istanzio il modello
+    lstm = LSTM()
+    optim = torch.optim.Adam(nn.parameters(), lr=0.001)
+    criterion = torch.nn.MSELoss()
+
+    ## mi manca il test_input e test_target
+
+    ## training
+    n_steps = 10
+    for step in range(n_steps):
+        print("Step: ", step)
+
+        def closure():
+            optim.zero_grad()
+            output = lstm(train_input)
+            loss = criterion(output, train_target)
+            print("loss: ", loss.item())
+            loss.backward()
+            return loss
+
+        optim.step(closure)
+
+        # training completo, ora testo
+        # with torch.no_grad():

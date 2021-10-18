@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
+using UnityEngine;
 
 namespace ObjectsForJson
 {
@@ -37,7 +38,8 @@ namespace ObjectsForJson
             List<float> peaks = new List<float>(20);
 
             // taglio i valori in eccesso 
-            frames.RemoveRange(750, frames.Count - 750);
+            if (frames.Count > 750)
+                frames.RemoveRange(750, frames.Count - 750);
 
 
 

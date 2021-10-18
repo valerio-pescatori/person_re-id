@@ -29,7 +29,7 @@ public class PlayerController : MonoBehaviour
         for (int i = 0; i < (int)Math.Ceiling(750 / (anim["mixamo.com"].length * 50)); i++)
             anim.PlayQueued("mixamo.com");
 
-        for (var i = 1; i < 3; i++)
+        for (var i = 1; i < 56; i++)
             for (int x = 0; x < (int)Math.Ceiling(750 / (anim["mixamo.com " + i].length * 50)); x++)
                 anim.PlayQueued("mixamo.com " + i);
 

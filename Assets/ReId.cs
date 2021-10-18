@@ -56,6 +56,8 @@ public class ReId : MonoBehaviour
         // calcolo feature per questo frame
         var hunchAngles = HunchbackFeature();
         var otAngles = OutToeingFeature();
+        var bct = BodyConvexTriangulation();
+        var bo = BodyOpenness();
 
         // se l'Animation component non sta riproducendo alcuna animazione
 
@@ -80,12 +82,11 @@ public class ReId : MonoBehaviour
             for (int i = 0; i < 56; i++)
             {
                 if (jAnims[i] == null)
-                {
                     jAnims[i] = new JAnimation(0, i);
+                if (jAnims[i].frames.Count == 0)
                     //riempio di frames vuoti l'animazione
                     for (int x = 0; x < 750; x++)
-                        jAnims[i].AddFrame(new JFrame(0, 0, 0, 0));
-                }
+                        jAnims[i].AddFrame(new JFrame(0, 0, 0, 0, 0, 0, 0, 0, 0));
             }
             //#######################################################################################
 
@@ -100,7 +101,8 @@ public class ReId : MonoBehaviour
         // calcolo e salvo i valori per il frame attuale
         var leftFoot = joints[14].transform.position;
         var rightFoot = joints[11].transform.position;
-        JFrame f = new JFrame(otAngles[1], otAngles[0], hunchAngles[1], Vector3.Distance(leftFoot, rightFoot));
+        JFrame f = new JFrame(otAngles[1], otAngles[0], hunchAngles[1],
+                    Vector3.Distance(leftFoot, rightFoot), bo[0], bo[1], bct[0], bct[1], bct[2]);
         jAnims[currAnim].AddFrame(f);
 
         StringBuilder sb = new StringBuilder("OUTPUTS\n");
@@ -172,22 +174,22 @@ public class ReId : MonoBehaviour
         }
 
         float[] bodyOpenness = new float[2];
-        bodyOpenness[0] = Vector3.Distance(hipMiddle, anklesAvg) / Vector3.Distance(kneeLeft, kneeRight); //lower
-        bodyOpenness[1] = Vector3.Distance(neck, hipMiddle) / Vector3.Distance(elbowLeft, elbowRight); //upper
+        bodyOpenness[0] = Vector3.Distance(neck, hipMiddle) / Vector3.Distance(elbowLeft, elbowRight); //upper
+        bodyOpenness[1] = Vector3.Distance(hipMiddle, anklesAvg) / Vector3.Distance(kneeLeft, kneeRight); //lower
         return bodyOpenness;
     }
 
     private float[] BodyConvexTriangulation()
     {
         float[] res = new float[3];
-        // lower body bct
-        res[0] = BodyConvexTriangulation(joints[8].transform.position,
-                                         joints[11].transform.position,
-                                         joints[14].transform.position);
         // upper body bct
-        res[1] = BodyConvexTriangulation(joints[4].transform.position,
+        res[0] = BodyConvexTriangulation(joints[4].transform.position,
                                          joints[7].transform.position,
                                          joints[1].transform.position);
+        // lower body bct
+        res[1] = BodyConvexTriangulation(joints[8].transform.position,
+                                         joints[11].transform.position,
+                                         joints[14].transform.position);
         // full body bct
         res[2] = BodyConvexTriangulation(joints[14].transform.position,
                                          joints[11].transform.position,
