@@ -41,6 +41,7 @@
      <Compile Include="Assets\ReId.cs" />
      <Compile Include="Assets\ObjectsForJson\JsonHelper.cs" />
      <Compile Include="Assets\ObjectsForJson\JFrame.cs" />
+     <Compile Include="Assets\ReId2.cs" />
     <Reference Include="UnityEngine">
         <HintPath>C:\Program Files\Unity\Hub\Editor\2020.3.1f1\Editor\Data\Managed\UnityEngine\UnityEngine.dll</HintPath>
     </Reference>
@@ -609,28 +610,28 @@
         <HintPath>C:\Program Files\Unity\Hub\Editor\2020.3.1f1\Editor\Data\MonoBleedingEdge\lib\mono\4.7.1-api\Facades\System.Xml.XPath.XDocument.dll</HintPath>
     </Reference>
     <Reference Include="Cinemachine">
-        <HintPath>C:\Users\pesca\Desktop\Person Re-Id\Library\ScriptAssemblies\Cinemachine.dll</HintPath>
+        <HintPath>C:\Users\Valerio\Desktop\Person Re-Id\Library\ScriptAssemblies\Cinemachine.dll</HintPath>
     </Reference>
     <Reference Include="Unity.VSCode.Editor">
-        <HintPath>C:\Users\pesca\Desktop\Person Re-Id\Library\ScriptAssemblies\Unity.VSCode.Editor.dll</HintPath>
+        <HintPath>C:\Users\Valerio\Desktop\Person Re-Id\Library\ScriptAssemblies\Unity.VSCode.Editor.dll</HintPath>
     </Reference>
     <Reference Include="com.unity.cinemachine.editor">
-        <HintPath>C:\Users\pesca\Desktop\Person Re-Id\Library\ScriptAssemblies\com.unity.cinemachine.editor.dll</HintPath>
+        <HintPath>C:\Users\Valerio\Desktop\Person Re-Id\Library\ScriptAssemblies\com.unity.cinemachine.editor.dll</HintPath>
     </Reference>
     <Reference Include="Unity.Timeline.Editor">
-        <HintPath>C:\Users\pesca\Desktop\Person Re-Id\Library\ScriptAssemblies\Unity.Timeline.Editor.dll</HintPath>
+        <HintPath>C:\Users\Valerio\Desktop\Person Re-Id\Library\ScriptAssemblies\Unity.Timeline.Editor.dll</HintPath>
     </Reference>
     <Reference Include="Unity.Timeline">
-        <HintPath>C:\Users\pesca\Desktop\Person Re-Id\Library\ScriptAssemblies\Unity.Timeline.dll</HintPath>
+        <HintPath>C:\Users\Valerio\Desktop\Person Re-Id\Library\ScriptAssemblies\Unity.Timeline.dll</HintPath>
     </Reference>
     <Reference Include="UnityEditor.UI">
-        <HintPath>C:\Users\pesca\Desktop\Person Re-Id\Library\ScriptAssemblies\UnityEditor.UI.dll</HintPath>
+        <HintPath>C:\Users\Valerio\Desktop\Person Re-Id\Library\ScriptAssemblies\UnityEditor.UI.dll</HintPath>
     </Reference>
     <Reference Include="Unity.Rider.Editor">
-        <HintPath>C:\Users\pesca\Desktop\Person Re-Id\Library\ScriptAssemblies\Unity.Rider.Editor.dll</HintPath>
+        <HintPath>C:\Users\Valerio\Desktop\Person Re-Id\Library\ScriptAssemblies\Unity.Rider.Editor.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.UI">
-        <HintPath>C:\Users\pesca\Desktop\Person Re-Id\Library\ScriptAssemblies\UnityEngine.UI.dll</HintPath>
+        <HintPath>C:\Users\Valerio\Desktop\Person Re-Id\Library\ScriptAssemblies\UnityEngine.UI.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

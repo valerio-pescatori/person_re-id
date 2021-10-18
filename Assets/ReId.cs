@@ -57,18 +57,21 @@ public class ReId : MonoBehaviour
         var hunchAngles = HunchbackFeature();
         var otAngles = OutToeingFeature();
 
+        // se l'Animation component non sta riproducendo alcuna animazione
+
+
         // se in questo frame eseguo un'animazione diversa da quella precedente
         if (!anim.IsPlaying("mixamo.com" + (currAnim == 0 ? "" : " " + currAnim.ToString())))
         {
             // nuova animazione
             // chiamo il metodo calculateSteps() dell'animation
             jAnims[currAnim].CalculateSteps(PLOT);
+
             // creo la nuova animazione
-            if (currAnim < 55)
+            if (currAnim != 55)
                 jAnims[++currAnim] = new JAnimation(characterHeight / 110, currAnim);
         }
 
-        // se l'Animation component non sta riproducendo alcuna animazione
         if (!anim.isPlaying)
         {
             // SOLO IN FASE DI DEVELOP 
@@ -76,12 +79,12 @@ public class ReId : MonoBehaviour
             //#######################################################################################
             for (int i = 0; i < 56; i++)
             {
-                var anim = jAnims[i];
-                if (anim.frames.Count == 0)
+                if (jAnims[i] == null)
                 {
-                    //riempio di frames vuoti animazione
+                    jAnims[i] = new JAnimation(0, i);
+                    //riempio di frames vuoti l'animazione
                     for (int x = 0; x < 750; x++)
-                        anim.AddFrame(new JFrame(0, 0, 0, 0));
+                        jAnims[i].AddFrame(new JFrame(0, 0, 0, 0));
                 }
             }
             //#######################################################################################
