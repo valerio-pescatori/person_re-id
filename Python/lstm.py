@@ -34,13 +34,12 @@ from torch.serialization import normalize_storage_type
 # N.B: in fase di developing
 # 8 local features
 # 250 frames (saranno 3000 poi)
-input_size = 8 * 250
+sequence_length = 250
+input_size = 8
 hidden_size = 64  # arbitrario
 num_classes = 56  # num di animazioni
 num_epochs = 3
-sequence_length = 8
-batch_size = 750  # 3000
-learning_rate = 0.001
+batch_size = 2  # 3000
 
 # forse batch_size = 3000(750)
 # e sequenze_length = 8
@@ -51,17 +50,16 @@ class LSTM(nn.Module):
     def __init__(self):
         super(LSTM, self).__init__()
         # definisco la struttura
-        self.lstm = nn.LSTMCell(input_size, hidden_size)
+        self.lstm = nn.LSTM(input_size, hidden_size, batch_first=True)
         self.dense = nn.Linear(hidden_size, 1)
 
     def forward(self, input):
-        h_t = torch.zeros(input.size(0), hidden_size, dtype=torch.float)
-        c_t = torch.zeros(input.size(0), hidden_size, dtype=torch.float)
+        h_t = torch.zeros(1, input.size(0), hidden_size, dtype=torch.float)
+        c_t = torch.zeros(1, input.size(0), hidden_size, dtype=torch.float)
         output = 0
-        for frame in input.split(1, dim=1):
-            h_t, c_t = self.lstm(frame, (h_t, c_t))
+        for anim in input:
+            h_t, c_t = self.lstm(anim.view(1, anim.size(0), anim.size(1)), (h_t, c_t))
             output = self.linear(h_t)
-
         return torch.cat(output, dim=1)
 
 
@@ -76,22 +74,22 @@ def preprocessData(data, input_lmf, input_gmf, target):
 
 
 if __name__ == "__main__":
-    # preparo i dati
+
+    # preparo training input e target
     data = None
     with open(str(Path.cwd().parent) + "\\training.json", "r") as file:
         data = json.load(file)
     # separo local features da global features
     trainLocalFeatures, trainGlobalFeatures, trainTarget = [], [], []
     preprocessData(data["Items"], trainLocalFeatures, trainGlobalFeatures, trainTarget)
-    trainLocalFeatures = torch.tensor(trainLocalFeatures)  # size [56, 750, 4]
+    trainLocalFeatures = torch.tensor(trainLocalFeatures)  # size [56, 250, 8]
     trainGlobalFeatures = torch.tensor(trainGlobalFeatures)  # size [56, 1]
     trainTarget = torch.tensor(trainTarget)
 
-    ## preparo il train input e target
+    ## preparo testing input e target
     data = None
     with open(str(Path.cwd().parent) + "\\testing.json", "r") as file:
         data = json.load(file)
-
     testLocalFeatures, testGlobalFeatures, testTarget = [], [], []
     preprocessData(data["Items"], testLocalFeatures, testGlobalFeatures, testTarget)
     testLocalFeatures = torch.tensor(testLocalFeatures)
@@ -105,20 +103,20 @@ if __name__ == "__main__":
 
     ## mi manca il test_input e test_target
 
-    ## training
+    ################################# TRAINING #################################
     n_steps = 10
     for step in range(n_steps):
         print("Step: ", step)
 
-        def closure():
-            optim.zero_grad()
-            output = lstm(trainLocalFeatures)
-            loss = criterion(output, trainTarget)
-            print("loss: ", loss.item())
-            loss.backward()
-            return loss
-
-        optim.step(closure)
+        optim.zero_grad()
+        print(trainLocalFeatures.size())
+        output = lstm(trainLocalFeatures)
+        loss = criterion(output, trainTarget)
+        print("loss: ", loss.item())
+        loss.backward()
+        optim.step()
 
         # training completo, ora testo
-        # with torch.no_grad()
+        with torch.no_grad():
+            guess = lstm(testLocalFeatures)
+            loss = criterion()
