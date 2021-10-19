@@ -21,25 +21,25 @@ namespace ObjectsForJson
         {
             this.lambda = lambda;
             this.index = index;
-            this.frames = new List<JFrame>(750);
+            this.frames = new List<JFrame>(PlayerController.NUMBER_OF_FRAMES);
         }
 
         public void AddFrame(JFrame frame)
         {
-            if (frames.Count < 750)
+            if (frames.Count < PlayerController.NUMBER_OF_FRAMES)
                 frames.Add(frame);
         }
 
         public float CalculateSteps(bool plot)
         {
             // calcola picchi e media passi
-
+            var nFrames = PlayerController.NUMBER_OF_FRAMES;
             // scorro i frames
             List<float> peaks = new List<float>(20);
 
             // taglio i valori in eccesso 
-            if (frames.Count > 750)
-                frames.RemoveRange(750, frames.Count - 750);
+            if (frames.Count > nFrames)
+                frames.RemoveRange(nFrames, frames.Count - nFrames);
 
 
 
@@ -62,7 +62,7 @@ namespace ObjectsForJson
             // ricavati i picchi, calcolo la media
             foreach (float peak in peaks)
                 sum += peak;
-            mediaLungPass = sum / peaks.Count;
+            mediaLungPass = peaks.Count == 0 ? 0 : sum / peaks.Count;
             if (plot)
                 this.Plot(index);
             return mediaLungPass;

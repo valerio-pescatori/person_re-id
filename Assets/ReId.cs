@@ -6,6 +6,7 @@ using System.Diagnostics;
 using ObjectsForJson;
 using Debug = UnityEngine.Debug;
 using System.IO;
+using System.Collections.Generic;
 
 // 0  => "mixamorig9:Neck",
 // 1  => "mixamorig9:Spine2",
@@ -34,10 +35,20 @@ public class ReId : MonoBehaviour
     public GameObject[] joints = new GameObject[20];
     public Text textObject;
     public Animation anim;
+    // indice dell'animazione in riproduzione
     private int currAnim;
+    // array con indici shuffle per la creazione di testing dataset
+    private int[] randIndexes;
     public JAnimation[] jAnims;
     private float characterHeight;
     public const bool PLOT = false;
+    // la variabile training indica se sto registrando dati per la fase di training oppure per la fase di testing
+    // nel primo caso le animazioni vengono eseguite e salvate in ordine crescende da "mixamo.com" a "mixamo.com 55"
+    // nel secondo caso vengono salvate in ordine casuale
+    public static bool TRAINING = false;
+    public const int numClasses = 56;
+    public const string JSON_TESTING_PATH = @".\testing.json";
+    public const string JSON_TRAINING_PATH = @".\training.json";
 
 
 
@@ -45,54 +56,59 @@ public class ReId : MonoBehaviour
     void Start()
     {
         currAnim = 0;
-        jAnims = new JAnimation[56];
-        jAnims[0] = new JAnimation(characterHeight / 110, currAnim);
+        jAnims = new JAnimation[numClasses];
         characterHeight = joints[15].transform.position.y - joints[16].transform.position.y;
+
+        // randomizzo gli indici per il testing
+        randIndexes = new int[numClasses];
+        for (int i = 0; i < numClasses; i++)
+            randIndexes[i] = i;
+        System.Random rng = new System.Random();
+        ShuffleArray(randIndexes, rng);
+        // inizializzo la prima JAnimation
+        jAnims[GetIndex()] = new JAnimation(characterHeight / 110, currAnim);
     }
+
 
     // Update is called once per frame
     void Update()
     {
-        // calcolo feature per questo frame
+        // feature exctraction
         var hunchAngles = HunchbackFeature();
         var otAngles = OutToeingFeature();
         var bct = BodyConvexTriangulation();
         var bo = BodyOpenness();
 
-        // se l'Animation component non sta riproducendo alcuna animazione
-
+        int index = GetIndex();
 
         // se in questo frame eseguo un'animazione diversa da quella precedente
         if (!anim.IsPlaying("mixamo.com" + (currAnim == 0 ? "" : " " + currAnim.ToString())))
         {
             // nuova animazione
             // chiamo il metodo calculateSteps() dell'animation
-            jAnims[currAnim].CalculateSteps(PLOT);
+            jAnims[index].CalculateSteps(PLOT);
+            Debug.Log(jAnims[index].frames.Count);
 
             // creo la nuova animazione
-            if (currAnim != 55)
-                jAnims[++currAnim] = new JAnimation(characterHeight / 110, currAnim);
+            if (currAnim < 55)
+            {
+                currAnim++;
+                //aggiorno l'indice
+                index = GetIndex();
+                jAnims[index] = new JAnimation(characterHeight / 110, currAnim);
+
+            }
         }
 
+        // se l'Animation component non sta riproducendo alcuna animazione
         if (!anim.isPlaying)
         {
-            // SOLO IN FASE DI DEVELOP 
-            // serve poichè non ho ancora eseguito tutte le animazioni
-            //#######################################################################################
-            for (int i = 0; i < 56; i++)
-            {
-                if (jAnims[i] == null)
-                    jAnims[i] = new JAnimation(0, i);
-                if (jAnims[i].frames.Count == 0)
-                    //riempio di frames vuoti l'animazione
-                    for (int x = 0; x < 750; x++)
-                        jAnims[i].AddFrame(new JFrame(0, 0, 0, 0, 0, 0, 0, 0, 0));
-            }
-            //#######################################################################################
-
             // serializzo e salvo in json
             string json = JsonHelper.ToJson<JAnimation>(jAnims, true);
-            File.WriteAllText(Directory.GetCurrentDirectory() + "/training_data.json", json);
+            if (TRAINING)
+                File.WriteAllText(JSON_TRAINING_PATH, json);
+            else
+                File.WriteAllText(JSON_TESTING_PATH, json);
 
             //stop play mode
             UnityEditor.EditorApplication.ExitPlaymode();
@@ -103,8 +119,10 @@ public class ReId : MonoBehaviour
         var rightFoot = joints[11].transform.position;
         JFrame f = new JFrame(otAngles[1], otAngles[0], hunchAngles[1],
                     Vector3.Distance(leftFoot, rightFoot), bo[0], bo[1], bct[0], bct[1], bct[2]);
-        jAnims[currAnim].AddFrame(f);
+        jAnims[index].AddFrame(f);
 
+
+        // printo gli output sulla canvas
         StringBuilder sb = new StringBuilder("OUTPUTS\n");
         // Hunchback outs
         sb.AppendLine("\nHUNCHBACK\nSpine1 angle: " + hunchAngles[1].ToString());
@@ -114,6 +132,14 @@ public class ReId : MonoBehaviour
         // print
         textObject.text = sb.ToString();
 
+    }
+
+    private int GetIndex()
+    {
+        if (TRAINING)
+            return currAnim;
+        else
+            return randIndexes[currAnim];
     }
 
     private float[] HunchbackFeature()
@@ -280,4 +306,17 @@ public class ReId : MonoBehaviour
         Gizmos.DrawLine(from, to);
         Gizmos.DrawSphere(to, radius);
     }
+
+    private static void ShuffleArray(int[] array, System.Random rng)
+    {
+        int n = array.Length;
+        while (n > 1)
+        {
+            int k = rng.Next(n--);
+            int temp = array[n];
+            array[n] = array[k];
+            array[k] = temp;
+        }
+    }
+
 }

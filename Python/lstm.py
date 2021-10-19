@@ -33,8 +33,8 @@ from torch.serialization import normalize_storage_type
 
 # N.B: in fase di developing
 # 8 local features
-# 750 frames (saranno 3000 poi)
-input_size = 8 * 750
+# 250 frames (saranno 3000 poi)
+input_size = 8 * 250
 hidden_size = 64  # arbitrario
 num_classes = 56  # num di animazioni
 num_epochs = 3
@@ -65,31 +65,42 @@ class LSTM(nn.Module):
         return torch.cat(output, dim=1)
 
 
+def preprocessData(data, input_lmf, input_gmf, target):
+    for animation in data:
+        anim_lmf = []  # local feature per questa animazione
+        for frame in animation["frames"]:
+            anim_lmf.append(list(frame.values()))
+        input_lmf.append(anim_lmf)
+        input_gmf.append([animation["mediaLungPass"]])
+        target.append([animation["index"]])
+
+
 if __name__ == "__main__":
     # preparo i dati
     data = None
-    with open(str(Path.cwd().parent) + "\\training_data.json", "r") as file:
+    with open(str(Path.cwd().parent) + "\\training.json", "r") as file:
+        data = json.load(file)
+    # separo local features da global features
+    trainLocalFeatures, trainGlobalFeatures, trainTarget = [], [], []
+    preprocessData(data["Items"], trainLocalFeatures, trainGlobalFeatures, trainTarget)
+    trainLocalFeatures = torch.tensor(trainLocalFeatures)  # size [56, 750, 4]
+    trainGlobalFeatures = torch.tensor(trainGlobalFeatures)  # size [56, 1]
+    trainTarget = torch.tensor(trainTarget)
+
+    ## preparo il train input e target
+    data = None
+    with open(str(Path.cwd().parent) + "\\testing.json", "r") as file:
         data = json.load(file)
 
-    ## process data
-    # devo separare local features da global features
-    data = data["Items"]
-    train_input = []
-    train_target = torch.tensor([i for i in range(56)])
-    global_features = []
-    for animation in data:
-        anim_lf = []  # local feature per questa animazione
-        for frame in animation["frames"]:
-            anim_lf.append(list(frame.values()))
-        train_input.append(anim_lf)
-        global_features.append([animation["mediaLungPass"]])
-
-    train_input = torch.tensor(train_input)  # size [56, 750, 4]
-    global_features = torch.tensor(global_features)  # size [56, 1]
+    testLocalFeatures, testGlobalFeatures, testTarget = [], [], []
+    preprocessData(data["Items"], testLocalFeatures, testGlobalFeatures, testTarget)
+    testLocalFeatures = torch.tensor(testLocalFeatures)
+    testGlobalFeatures = torch.tensor(testGlobalFeatures)
+    testTarget = torch.tensor(testTarget)
 
     ## istanzio il modello
     lstm = LSTM()
-    optim = torch.optim.Adam(nn.parameters(), lr=0.001)
+    optim = torch.optim.Adam(lstm.parameters(), lr=0.001)
     criterion = torch.nn.MSELoss()
 
     ## mi manca il test_input e test_target
@@ -101,8 +112,8 @@ if __name__ == "__main__":
 
         def closure():
             optim.zero_grad()
-            output = lstm(train_input)
-            loss = criterion(output, train_target)
+            output = lstm(trainLocalFeatures)
+            loss = criterion(output, trainTarget)
             print("loss: ", loss.item())
             loss.backward()
             return loss
@@ -110,4 +121,4 @@ if __name__ == "__main__":
         optim.step(closure)
 
         # training completo, ora testo
-        # with torch.no_grad():
+        # with torch.no_grad()

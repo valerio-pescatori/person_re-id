@@ -4,6 +4,7 @@ using System;
 public class PlayerController : MonoBehaviour
 {
     public Animator animator;
+    public const int NUMBER_OF_FRAMES = 250;
     Animation anim;
 
 
@@ -11,7 +12,7 @@ public class PlayerController : MonoBehaviour
     void Awake()
     {
         QualitySettings.vSyncCount = 0;
-        Application.targetFrameRate = 50;
+        Application.targetFrameRate = 53; // setto il target 3 fps in più per evitare errori 
     }
 
     // Use this for initialization
@@ -22,15 +23,14 @@ public class PlayerController : MonoBehaviour
 
         // ogni animazione gira per 60 secondi esatti a 50fps (3000 frames )
 
-        // N.B: PER IL TESTING STO USANDO 750 FRAMES INVECE CHE 3000: RICORDA DI MODIFICARE ANCHE IL 
-        // TAGLIO IN JANIMATION
+        // N.B: PER IL TESTING STO USANDO 750 FRAMES INVECE CHE 3000
 
         anim.Play("mixamo.com");
-        for (int i = 0; i < (int)Math.Ceiling(750 / (anim["mixamo.com"].length * 50)); i++)
+        for (int i = 0; i < (int)Math.Ceiling(NUMBER_OF_FRAMES / (anim["mixamo.com"].length * 50)); i++)
             anim.PlayQueued("mixamo.com");
 
         for (var i = 1; i < 56; i++)
-            for (int x = 0; x < (int)Math.Ceiling(750 / (anim["mixamo.com " + i].length * 50)); x++)
+            for (int x = 0; x < (int)Math.Ceiling(NUMBER_OF_FRAMES / (anim["mixamo.com " + i].length * 50)); x++)
                 anim.PlayQueued("mixamo.com " + i);
 
 
@@ -39,8 +39,8 @@ public class PlayerController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Application.targetFrameRate != 50)
-            Application.targetFrameRate = 50;
+        if (Application.targetFrameRate != 53)
+            Application.targetFrameRate = 53;
 
         animator.SetFloat("vertical", Input.GetAxis("Vertical"));
         animator.SetFloat("horizontal", Input.GetAxis("Horizontal"));
