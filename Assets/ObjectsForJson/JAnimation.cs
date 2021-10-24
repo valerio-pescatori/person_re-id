@@ -41,8 +41,6 @@ namespace ObjectsForJson
             if (frames.Count > nFrames)
                 frames.RemoveRange(nFrames, frames.Count - nFrames);
 
-
-
             for (int i = 2; i < frames.Count; i++)
             {
                 // indica se nel frame attuale il trend è in crescita

@@ -4,7 +4,7 @@ using System;
 public class PlayerController : MonoBehaviour
 {
     public Animator animator;
-    public const int NUMBER_OF_FRAMES = 250;
+    public const int NUMBER_OF_FRAMES = 750;
     Animation anim;
 
 
@@ -18,11 +18,8 @@ public class PlayerController : MonoBehaviour
     // Use this for initialization
     void Start()
     {
-
         anim = GetComponent<Animation>();
-
-        // ogni animazione gira per 60 secondi esatti a 50fps (3000 frames )
-
+        // ogni animazione gira per 60 secondi esatti a 50fps (3000 frames)
         // N.B: PER IL TESTING STO USANDO 750 FRAMES INVECE CHE 3000
 
         anim.Play("mixamo.com");

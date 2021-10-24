@@ -19,7 +19,7 @@ MonoBehaviour:
     width: 1536
     height: 780.8
   m_ShowMode: 4
-  m_Title: Console
+  m_Title: Game
   m_RootView: {fileID: 5}
   m_MinSize: {x: 875, y: 321}
   m_MaxSize: {x: 10000, y: 10000}
@@ -39,9 +39,9 @@ MonoBehaviour:
   m_Children: []
   m_Position:
     serializedVersion: 2
-    x: 855.2
+    x: 855
     y: 0
-    width: 317.60004
+    width: 318
     height: 731
   m_MinSize: {x: 100, y: 100}
   m_MaxSize: {x: 4000, y: 4000}
@@ -73,10 +73,10 @@ MonoBehaviour:
     y: 30
     width: 1536
     height: 731
-  m_MinSize: {x: 577, y: 200}
-  m_MaxSize: {x: 12002, y: 4021}
+  m_MinSize: {x: 579, y: 221}
+  m_MaxSize: {x: 12004, y: 4021}
   vertical: 0
-  controlID: 96
+  controlID: 68
 --- !u!114 &4
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -92,9 +92,9 @@ MonoBehaviour:
   m_Children: []
   m_Position:
     serializedVersion: 2
-    x: 1172.8
+    x: 1173
     y: 0
-    width: 363.19995
+    width: 363
     height: 731
   m_MinSize: {x: 275, y: 50}
   m_MaxSize: {x: 4000, y: 4000}
@@ -196,12 +196,12 @@ MonoBehaviour:
     serializedVersion: 2
     x: 0
     y: 0
-    width: 1172.8
+    width: 1173
     height: 731
-  m_MinSize: {x: 302, y: 200}
-  m_MaxSize: {x: 8002, y: 4021}
+  m_MinSize: {x: 303, y: 221}
+  m_MaxSize: {x: 8003, y: 4021}
   vertical: 0
-  controlID: 60
+  controlID: 36
 --- !u!114 &9
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -219,7 +219,7 @@ MonoBehaviour:
     serializedVersion: 2
     x: 0
     y: 0
-    width: 855.2
+    width: 855
     height: 731
   m_MinSize: {x: 200, y: 200}
   m_MaxSize: {x: 4000, y: 4000}
@@ -388,7 +388,7 @@ MonoBehaviour:
     serializedVersion: 2
     x: 1172.8
     y: 73.6
-    width: 362.19995
+    width: 362
     height: 710
   m_ViewDataDictionary: {fileID: 0}
   m_ObjectsLockedBeforeSerialization: []
@@ -423,9 +423,9 @@ MonoBehaviour:
     m_Tooltip: 
   m_Pos:
     serializedVersion: 2
-    x: 730.4
+    x: 855.2
     y: 73.6
-    width: 440.40002
+    width: 316
     height: 710
   m_ViewDataDictionary: {fileID: 0}
   m_SceneHierarchy:
@@ -595,7 +595,7 @@ MonoBehaviour:
     serializedVersion: 2
     x: 0
     y: 73.6
-    width: 854.2
+    width: 854
     height: 710
   m_ViewDataDictionary: {fileID: 0}
   m_SerializedViewNames: []
@@ -640,10 +640,10 @@ MonoBehaviour:
       serializedVersion: 2
       x: 0
       y: 21
-      width: 854.2
+      width: 854
       height: 689
-    m_Scale: {x: 0.5561198, y: 0.5561198}
-    m_Translation: {x: 427.1, y: 344.5}
+    m_Scale: {x: 0.55598956, y: 0.55598956}
+    m_Translation: {x: 427, y: 344.5}
     m_MarginLeft: 0
     m_MarginRight: 0
     m_MarginTop: 0
@@ -651,12 +651,12 @@ MonoBehaviour:
     m_LastShownAreaInsideMargins:
       serializedVersion: 2
       x: -768
-      y: -619.4708
+      y: -619.61597
       width: 1536
-      height: 1238.9417
+      height: 1239.2319
     m_MinimalGUI: 1
-  m_defaultScale: 0.5561198
-  m_LastWindowPixelSize: {x: 1067.75, y: 887.5}
+  m_defaultScale: 0.55598956
+  m_LastWindowPixelSize: {x: 1067.5, y: 887.5}
   m_ClearInEditMode: 1
   m_NoCameraWarning: 1
   m_LowResolutionForAspectRatios: 01000000000000000000
@@ -684,7 +684,7 @@ MonoBehaviour:
     serializedVersion: 2
     x: 855.2
     y: 73.6
-    width: 315.60004
+    width: 316
     height: 710
   m_ViewDataDictionary: {fileID: 0}
 --- !u!114 &16

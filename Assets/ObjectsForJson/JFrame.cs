@@ -1,4 +1,5 @@
 using System;
+using UnityEngine;
 
 namespace ObjectsForJson
 {
@@ -13,20 +14,13 @@ namespace ObjectsForJson
         public float bctU;
         public float bctL;
         public float bctF;
+        public float[] positions;
+        public float[] velocities;
+        public float[] accelerations;
         public float feetDist { get; private set; }
-        // non salvo la lunghezza del passo poichè la feature non è una media delle distanze tra i piedi di ogni frame.
-        // Partendo da un vettore contenente la distanza tra i due piedi(joint['feet']), 
-        // ricavo solo i frame in cui si suppone ci sia la massima estensione del passo (quindi i "picchi" dei valori nel vettore)
-
-
-        // opzione: potrei salvare le distanze tra i piedi in ogni frame e creare un metodo in animations che calcola la media finale.
-        // forse questa è la più pulita. 
-        // \\
-        // devo (?) per forza poichè non so alla fine quanti frame ho, quindi non so quando chiamare la funzione finale di media in steplength
-        // potre
 
         public JFrame(float outToeingR, float outToeingL, float hunchback, float feetDist,
-                        float bodyOpennessU, float bodyOpennessL, float bctU, float bctL, float bctF)
+                        float bodyOpennessU, float bodyOpennessL, float bctU, float bctL, float bctF, Vector3[] accel, Vector3[] pos, Vector3[] vel)
         {
             this.outToeingL = outToeingL;
             this.outToeingR = outToeingR;
@@ -37,6 +31,33 @@ namespace ObjectsForJson
             this.bctF = bctF;
             this.bctL = bctL;
             this.bctU = bctU;
+
+            this.velocities = new float[pos.Length * 3];
+            this.accelerations = new float[pos.Length * 3];
+            this.positions = new float[pos.Length * 3];
+            // flattening degli array di vector3
+            for (int i = 0, j = 0; i < pos.Length; i++, j += 3)
+            {
+                for (int x = 0; x < 3; x++)
+                {
+                    positions[j + x] = pos[i][x];
+                }
+            }
+
+            // accel e vel potrebbero essere null (1° frame)
+            if (accel != null)
+                for (int i = 0, j = 0; i < accel.Length; i++, j += 3)
+                    for (int x = 0; x < 3; x++)
+                    {
+                        velocities[j + x] = vel[i][x];
+                        accelerations[j + x] = accel[i][x];
+                    }
+            else
+                for (int i = 0; i < accelerations.Length; i++)
+                {
+                    velocities[i] = 0f;
+                    accelerations[i] = 0f;
+                }
         }
     }
 }

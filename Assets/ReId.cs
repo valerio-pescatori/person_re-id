@@ -41,6 +41,8 @@ public class ReId : MonoBehaviour
     private int[] randIndexes;
     public JAnimation[] jAnims;
     private float characterHeight;
+    private Vector3[] lastVel;
+    private Vector3[] lastPos;
     public const bool PLOT = false;
     // la variabile training indica se sto registrando dati per la fase di training oppure per la fase di testing
     // nel primo caso le animazioni vengono eseguite e salvate in ordine crescende da "mixamo.com" a "mixamo.com 55"
@@ -73,12 +75,6 @@ public class ReId : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        // feature exctraction
-        var hunchAngles = HunchbackFeature();
-        var otAngles = OutToeingFeature();
-        var bct = BodyConvexTriangulation();
-        var bo = BodyOpenness();
-
         int index = GetIndex();
 
         // se in questo frame eseguo un'animazione diversa da quella precedente
@@ -114,11 +110,21 @@ public class ReId : MonoBehaviour
             UnityEditor.EditorApplication.ExitPlaymode();
         }
 
+        // feature extraction
+        var hunchAngles = HunchbackFeature();
+        var otAngles = OutToeingFeature();
+        var bct = BodyConvexTriangulation();
+        var bo = BodyOpenness();
+        var positions = Positions();
+        Vector3[] accelerations = null;
+        Vector3[] velocities = null;
+        velocities = Velocities(positions);
+        accelerations = Accelerations(velocities);
         // calcolo e salvo i valori per il frame attuale
         var leftFoot = joints[14].transform.position;
         var rightFoot = joints[11].transform.position;
         JFrame f = new JFrame(otAngles[1], otAngles[0], hunchAngles[1],
-                    Vector3.Distance(leftFoot, rightFoot), bo[0], bo[1], bct[0], bct[1], bct[2]);
+                    Vector3.Distance(leftFoot, rightFoot), bo[0], bo[1], bct[0], bct[1], bct[2], accelerations, positions, velocities);
         jAnims[index].AddFrame(f);
 
 
@@ -132,7 +138,40 @@ public class ReId : MonoBehaviour
         // print
         textObject.text = sb.ToString();
 
+        lastPos = positions;
+        lastVel = velocities;
     }
+
+    private Vector3[] Positions()
+    {
+        var pos = new Vector3[joints.Length];
+        for (var i = 0; i < joints.Length; i++)
+            pos[i] = joints[i].transform.position;
+        return pos;
+    }
+
+    private Vector3[] Velocities(Vector3[] positions)
+    {
+        Vector3[] velocities = new Vector3[joints.Length];
+        for (int i = 0; i < joints.Length; i++)
+            if (lastPos != null)
+                velocities[i] = (positions[i] - lastPos[i]) / Time.deltaTime;
+            else
+                velocities[i] = positions[i] / Time.deltaTime;
+        return velocities;
+    }
+    private Vector3[] Accelerations(Vector3[] velocities)
+    {
+        Vector3[] accelerations = new Vector3[joints.Length];
+        for (int i = 0; i < joints.Length; i++)
+            if (lastVel! != null)
+                accelerations[i] = (velocities[i] - lastVel[i]) / Time.deltaTime;
+            else
+                accelerations[i] = velocities[i] / Time.deltaTime;
+
+        return accelerations;
+    }
+
 
     private int GetIndex()
     {
