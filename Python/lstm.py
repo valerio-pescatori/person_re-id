@@ -1,10 +1,7 @@
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 import json
 from pathlib import Path
-from pprint import pprint
-import numpy as np
 
 # architettura nn:
 # 1  lstm layer x local mf
@@ -28,7 +25,7 @@ import numpy as np
 # Hyper-parameters
 N_OF_FRAMES = 750
 input_size = 188
-hidden_size = 512  # arbitrario
+hidden_size = 512
 num_classes = 56  # numero totale di animazioni
 
 
@@ -99,7 +96,7 @@ if __name__ == "__main__":
 
     ## istanzio il modello
     lstm = LSTM()
-    optim = torch.optim.Adam(lstm.parameters(), lr=0.005)
+    optim = torch.optim.Adam(lstm.parameters(), lr=0.001)
     criterion = nn.CrossEntropyLoss()
 
     ################################# TRAINING #################################
@@ -118,20 +115,15 @@ if __name__ == "__main__":
         guess = lstm(test_local_features)
         loss = criterion(guess, test_target)
 
+        corrette = 0
         # printo esempi a caso
-        print("GUESS 1 : \n")
-        pprint(guess[12])
-        pprint(test_target[12])
+        for i in range(num_classes):
+            if torch.argmax(guess[i]) == test_target[i]:
+                corrette += 1
+        print("Risposte corrette: " + str(corrette) + "/" + str(num_classes))
+        print(str(round(corrette / num_classes * 100, 2)) + "%")
 
-        print("\nGUESS 2 : \n")
-        pprint(guess[33])
-        pprint(test_target[33])
-
-        print("\nGUESS 3 : \n")
-        pprint(guess[21])
-        pprint(test_target[21])
-
-        print("\nGUESS 4 : \n")
-        pprint(guess[6])
-        pprint(test_target[6])
-        # devo fare 5-ranking qui (?)
+        print("\n\nEsempio risultato")
+        print(guess[13])
+        print(test_target[13])
+        print("argmax:" + str(torch.argmax(guess[13])))
