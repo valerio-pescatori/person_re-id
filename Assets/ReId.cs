@@ -29,7 +29,6 @@ using System.Collections.Generic;
 // 18 => "mixamorig9:Spine1"
 // 19 => "mixamorig9:Spine"
 
-
 public class ReId : MonoBehaviour
 {
     public GameObject[] joints = new GameObject[20];
@@ -98,8 +97,8 @@ public class ReId : MonoBehaviour
         var bct = BodyConvexTriangulation();
         var bo = BodyOpenness();
         var positions = Positions();
-        Vector3[] velocities = Velocities(positions);
-        Vector3[] accelerations = Accelerations(velocities);
+        var velocities = Velocities(positions);
+        var accelerations = Accelerations(velocities);
         var leftFoot = joints[14].transform.position;
         var rightFoot = joints[11].transform.position;
         JFrame f = new JFrame(otAngles[1], otAngles[0], hunchAngles[1],
@@ -111,19 +110,19 @@ public class ReId : MonoBehaviour
         lastPos = positions;
         lastVel = velocities;
     }
-
     private Vector3[] Positions()
     {
-        var pos = new Vector3[joints.Length];
-        for (var i = 0; i < joints.Length; i++)
-            pos[i] = joints[i].transform.position;
+        // uso 5 joints: testa, manodx, manosx, piededx, piedesx
+        var joints5 = new GameObject[] { joints[15], joints[4], joints[7], joints[11], joints[14] };
+        var pos = new Vector3[joints5.Length];
+        for (var i = 0; i < joints5.Length; i++)
+            pos[i] = joints5[i].transform.position;
         return pos;
     }
-
     private Vector3[] Velocities(Vector3[] positions)
     {
-        Vector3[] velocities = new Vector3[joints.Length];
-        for (int i = 0; i < joints.Length; i++)
+        Vector3[] velocities = new Vector3[positions.Length];
+        for (int i = 0; i < positions.Length; i++)
             if (lastPos != null)
                 velocities[i] = (positions[i] - lastPos[i]) / Time.deltaTime;
             else
@@ -132,8 +131,8 @@ public class ReId : MonoBehaviour
     }
     private Vector3[] Accelerations(Vector3[] velocities)
     {
-        Vector3[] accelerations = new Vector3[joints.Length];
-        for (int i = 0; i < joints.Length; i++)
+        Vector3[] accelerations = new Vector3[velocities.Length];
+        for (int i = 0; i < velocities.Length; i++)
             if (lastVel! != null)
                 accelerations[i] = (velocities[i] - lastVel[i]) / Time.deltaTime;
             else
@@ -163,7 +162,6 @@ public class ReId : MonoBehaviour
 
         return angles;
     }
-
     private float[] OutToeingFeature()
     {
         // creo triangoli usando caviglie e punta del piede
@@ -185,7 +183,6 @@ public class ReId : MonoBehaviour
 
         return new float[] { leftFootAngles[1], rightFootAngles[1] };
     }
-
     private float[] BodyOpenness()
     {
         Vector3 hipMiddle = joints[8].transform.position;
@@ -207,7 +204,6 @@ public class ReId : MonoBehaviour
         bodyOpenness[1] = Vector3.Distance(hipMiddle, anklesAvg) / Vector3.Distance(kneeLeft, kneeRight); //lower
         return bodyOpenness;
     }
-
     private float[] BodyConvexTriangulation()
     {
         float[] res = new float[3];
@@ -225,7 +221,6 @@ public class ReId : MonoBehaviour
                                          joints[0].transform.position);
         return res;
     }
-
     private float[] CalculateAngles(Vector3 point1, Vector3 point2, Vector3 point3)
     {
         // lunghezze lati ab, ac, bc
@@ -251,13 +246,11 @@ public class ReId : MonoBehaviour
         float thetaG = 180.0f - thetaA - thetaB;
         return new float[] { thetaA, thetaB, thetaG };
     }
-
     private float BodyConvexTriangulation(Vector3 point1, Vector3 point2, Vector3 point3)
     {
         float[] angles = CalculateAngles(point1, point2, point3);
         return (angles[1] / angles[0]) - (angles[2] / angles[0]);
     }
-
     private void OnDrawGizmos()
     {
         // first sphere
@@ -302,12 +295,10 @@ public class ReId : MonoBehaviour
         // r ankle to r foot
         DrawLineAndSphere(joints[11].transform.position, joints[17].transform.position, Color.cyan);
     }
-
     private void DrawLineAndSphere(Vector3 from, Vector3 to, Color color, float radius = 0.06f)
     {
         Gizmos.color = color;
         Gizmos.DrawLine(from, to);
         Gizmos.DrawSphere(to, radius);
     }
-
 }

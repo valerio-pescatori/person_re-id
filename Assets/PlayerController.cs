@@ -4,9 +4,9 @@ using System.Collections.Generic;
 public class PlayerController : MonoBehaviour
 {
     // public Animator animator;
-    public const int NUMBER_OF_FRAMES = 10;
+    public const int NUMBER_OF_FRAMES = 750;
     Animation animationComponent;
-    public const int targetFrameRate = 73;
+    public const int targetFrameRate = 53;
 
 
     // fps limitator    
@@ -21,26 +21,27 @@ public class PlayerController : MonoBehaviour
     {
         animationComponent = GetComponent<Animation>();
 
-        animationComponent.Play("mixamo.com");
-        animationComponent.Play("mixamo.com 1");
-        animationComponent.Play("mixamo.com 2");
-
-        // // la prima animazione va messa in play manualmente
+        // // testing
         // animationComponent.Play("mixamo.com");
-        // for (int i = 1; i < (int)Math.Ceiling((NUMBER_OF_FRAMES - animationComponent["mixamo.com"].length * (targetFrameRate - 3)) /
-        //                                        (animationComponent["mixamo.com"].length * targetFrameRate)); i++)
-        //     animationComponent.PlayQueued("mixamo.com");
+        // animationComponent.Play("mixamo.com 1");
+        // animationComponent.Play("mixamo.com 2");
 
-        // // costruisco la coda di riproduzione
-        // var toBePlayed = new Queue<String>();
-        // for (int j = 0; j < 7; j++)
-        //     for (int i = 0; i < 56; i++)
-        //         toBePlayed.Enqueue(i == 0 ? "mixamo.com" : "mixamo.com " + i);
+        // la prima animazione va messa in play manualmente
+        animationComponent.Play("mixamo.com");
+        for (int i = 1; i < (int)Math.Ceiling((NUMBER_OF_FRAMES - animationComponent["mixamo.com"].length * (targetFrameRate - 3)) /
+                                               (animationComponent["mixamo.com"].length * targetFrameRate)); i++)
+            animationComponent.PlayQueued("mixamo.com");
 
-        // // riproduco le animazioni
-        // foreach (var anim in toBePlayed)
-        //     for (int i = 0; i < (int)Math.Ceiling(NUMBER_OF_FRAMES / (animationComponent[anim].length * (targetFrameRate - 3))); i++)
-        //         animationComponent.PlayQueued(anim);
+        // costruisco la coda di riproduzione
+        var toBePlayed = new Queue<String>();
+        for (int j = 0; j < 7; j++)
+            for (int i = 0; i < 56; i++)
+                toBePlayed.Enqueue(i == 0 ? "mixamo.com" : "mixamo.com " + i);
+
+        // riproduco le animazioni
+        foreach (var anim in toBePlayed)
+            for (int i = 0; i < (int)Math.Ceiling(NUMBER_OF_FRAMES / (animationComponent[anim].length * (targetFrameRate - 3))); i++)
+                animationComponent.PlayQueued(anim);
     }
 
     // Update is called once per frame
