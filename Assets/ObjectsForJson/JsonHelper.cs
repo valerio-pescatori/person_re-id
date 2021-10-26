@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+
 namespace ObjectsForJson
 {
     // code from https://stackoverflow.com/questions/36239705/serialize-and-deserialize-json-and-json-array-in-unity
@@ -15,7 +16,10 @@ namespace ObjectsForJson
         {
             Wrapper<T> wrapper = new Wrapper<T>();
             wrapper.Items = array;
-            return JsonUtility.ToJson(wrapper);
+
+            string result = JsonUtility.ToJson(wrapper);
+
+            return result;
         }
 
         public static string ToJson<T>(T[] array, bool prettyPrint)
