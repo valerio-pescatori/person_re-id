@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 import json
 from pathlib import Path
+import matplotlib.pyplot as plt
 
 # architettura nn:
 # 1  lstm layer x local mf
@@ -27,6 +28,7 @@ N_OF_FRAMES = 750
 input_size = 188
 hidden_size = 512
 num_classes = 56  # numero totale di animazioni
+global_features_size = 1
 
 
 class LSTM(nn.Module):
@@ -34,15 +36,17 @@ class LSTM(nn.Module):
         super(LSTM, self).__init__()
         # definisco la struttura
         self.lstm = nn.LSTM(input_size, hidden_size, batch_first=True)
-        self.dense = nn.Linear(hidden_size * N_OF_FRAMES, 56)
+        self.dense = nn.Linear(hidden_size * N_OF_FRAMES + global_features_size, 56)
 
     def forward(self, input):
         output = 0
-        h_t, _ = self.lstm(input)
+        local_f, global_f = input
+        h_t, _ = self.lstm(local_f)
         # output = self.dense(h_t)
         output = torch.zeros((56, 56))
         for i, anim in enumerate(h_t):
-            output[i] = self.dense(anim.reshape(-1))
+            dense_input = torch.cat((anim.reshape(-1), global_f[i]))
+            output[i] = self.dense(dense_input)
         return output
 
 
@@ -51,9 +55,9 @@ def preprocessData(file_path, input_lf, input_gf, target):
     with open(file_path, "r") as file:
         data = json.load(file)
     for animation in data["Items"]:  # num_classes animazioni
-        anim_local_features = []  # liste di local feature per questa animazione (2D)
+        anim_local_features = []  # liste di local feature per questa animazione
         for frame in animation["frames"]:
-            frame_local_features = []  # lista di local features per questo frame (1D)
+            frame_local_features = []  # lista di local features per questo frame
             # appiattisco la lista di local features
             for local_feature in frame.values():
                 if type(local_feature) is float:  # se è float lo appendo
@@ -100,30 +104,56 @@ if __name__ == "__main__":
     criterion = nn.CrossEntropyLoss()
 
     ################################# TRAINING #################################
-    n_steps = 10
-    for step in range(n_steps):
-        print("Step: ", step)
+    loss_values = []
+    accuracy = []
+    epochs = 10
+    for e in range(epochs):
+        print("Epoch: ", e)
         optim.zero_grad()
-        output = lstm(train_local_features)
+        output = lstm((train_local_features, train_global_features))
         loss = criterion(output, train_target)
-        print("loss: ", loss.item())
+        loss_values.append(loss.item())
         loss.backward()
         optim.step()
 
+        # valori per plot
+        corrette = 0
+        print("loss: ", loss.item())
+        for i in range(num_classes):
+            if torch.argmax(output[i]) == train_target[i]:
+                corrette += 1
+        accuracy.append(round(corrette / num_classes * 100, 2))
+    x = [_ for _ in range(epochs)]
+    plt.plot(x, loss_values)
+    plt.xlabel("epochs")
+    plt.ylabel("loss")
+    plt.show()
+    # plt.savefig("Python/loss.png")
+
+    plt.plot(x, accuracy)
+    plt.xlabel("epochs")
+    plt.ylabel("accuracy")
+    plt.show()
+    # plt.savefig("Python/accuracy.png")
+
     # training completo, ora testo
     with torch.no_grad():
-        guess = lstm(test_local_features)
+        guess = lstm((test_local_features, test_global_features))
         loss = criterion(guess, test_target)
 
+        torch.save(guess, "guess.pt")
+        torch.save(test_target, "target.pt")
+        # misuro l'accuracy
         corrette = 0
-        # printo esempi a caso
         for i in range(num_classes):
             if torch.argmax(guess[i]) == test_target[i]:
                 corrette += 1
-        print("Risposte corrette: " + str(corrette) + "/" + str(num_classes))
-        print(str(round(corrette / num_classes * 100, 2)) + "%")
 
-        print("\n\nEsempio risultato")
+        print("loss: ", loss.item())
+        print("Risposte corrette: ", corrette, "/", num_classes)
+        print(round(corrette / num_classes * 100, 2), "%")
+
+        print("\n\nEsempio risultato:")
         print(guess[13])
-        print(test_target[13])
-        print("argmax:" + str(torch.argmax(guess[13])))
+        print("target: ", test_target[13])
+        print("argmax: ", torch.argmax(guess[13]))

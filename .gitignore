@@ -4,3 +4,9 @@ Assets/Models/Walks
 imgs/
 testing.json
 training.json
+*.pt
+metrics.txt
+Python/accuracy_zoom.png
+Python/accuracy.png
+Python/loss_zoom.png
+Python/loss.png
