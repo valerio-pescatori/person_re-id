@@ -33,7 +33,7 @@ public class PlayerController : MonoBehaviour
         animationComponent.Play("mixamo.com");
 
         // costruisco la coda di riproduzione
-        var playQueue = GeneratePlayQueue(ReId.TRAINING);
+        var playQueue = GeneratePlayQueue();
 
         // riproduco ogni animazione nella coda per 750 frames
         foreach (var anim in playQueue)
@@ -41,11 +41,10 @@ public class PlayerController : MonoBehaviour
                 animationComponent.PlayQueued(anim);
     }
 
-    private Queue<String> GeneratePlayQueue(bool training)
+    private Queue<String> GeneratePlayQueue()
     {
         var queue = new Queue<String>();
-        int nSamples = training ? 1 : 7;
-        for (int j = 0; j < nSamples; j++)
+        for (int j = 0; j < ReId.nSamples; j++)
             for (int i = 0; i < 56; i++)
                 queue.Enqueue(i == 0 ? "mixamo.com" : "mixamo.com " + i);
         return queue;
