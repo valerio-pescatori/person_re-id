@@ -1,10 +1,15 @@
 Assets/Models/Walks
 imgs/
-testing.json
-training.json
+testing**.json
+training**.json
 *.pt
 metrics.txt
 Python/**.png
+Data/
+
+# data for metrics calculation
+Python/data
+Python/__pycache__
 
 # This .gitignore file should be placed at the root of your Unity project directory
 #

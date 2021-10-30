@@ -1,8 +1,11 @@
 import torch
+from torch.functional import norm
 import torch.nn as nn
 import json
 from pathlib import Path
 import matplotlib.pyplot as plt
+from metrics import topKAccuracy
+from metrics import metrics
 
 # architettura nn:
 # 1  lstm layer x local mf
@@ -25,7 +28,9 @@ import matplotlib.pyplot as plt
 
 # Hyper-parameters
 N_OF_FRAMES = 750
+SAVE_RESULTS = True
 input_size = 188
+# input_size = 8 + (5 * 9)  # 8 --> ot, hb, bo, bct. 5*3 --> pos, vel e acc per 5 joints
 hidden_size = 512
 num_classes = 56  # numero totale di animazioni
 global_features_size = 1
@@ -43,14 +48,17 @@ class LSTM(nn.Module):
         local_f, global_f = input
         h_t, _ = self.lstm(local_f)
         # output = self.dense(h_t)
-        output = torch.zeros((56, 56))
+        output = torch.zeros((local_f.size(0), num_classes))
         for i, anim in enumerate(h_t):
             dense_input = torch.cat((anim.reshape(-1), global_f[i]))
             output[i] = self.dense(dense_input)
         return output
 
 
-def preprocessData(file_path, input_lf, input_gf, target):
+def preprocessData(file_path):
+    localf = []
+    globalf = []
+    target = []
     data = None
     with open(file_path, "r") as file:
         data = json.load(file)
@@ -65,45 +73,49 @@ def preprocessData(file_path, input_lf, input_gf, target):
                 else:  # se è lista joino le liste
                     frame_local_features += local_feature
             anim_local_features.append(frame_local_features)
-        input_lf.append(anim_local_features)
-        input_gf.append([animation["mediaLungPass"]])
-        target.append([animation["index"]])
+        localf.append(anim_local_features)
+        globalf.append([animation["mediaLungPass"]])
+        target.append(animation["index"])
+    return localf, globalf, target
+
+
+def loadJson(loc, glob, targ):
+    ## divido i samples tra training e testing
+    ## 3 per training 4 per testing
+    for i in range(3):
+        t = preprocessData(str(Path.cwd().parent) + "\\Data\\data" + str(i) + ".json")
+        loc += t[0]
+        glob += t[1]
+        targ += t[2]
+    return loc, glob, targ
 
 
 if __name__ == "__main__":
-    # preparo training input e target
-    train_local_features, train_global_features, train_target = [], [], []
-    preprocessData(
-        str(Path.cwd().parent) + "\\training.json",
-        train_local_features,
-        train_global_features,
-        train_target,
+    local_features, global_features, target = [], [], []
+    loadJson(
+        local_features,
+        global_features,
+        target,
     )
-    train_local_features = torch.tensor(train_local_features)
-    # size [num_classes, 750, 188]
-    train_global_features = torch.tensor(train_global_features)
-    # size [num_classes, 1]
-    train_target = torch.tensor(train_target).reshape(-1)
-    # size [num_classes, 1]
+    local_features = torch.tensor(local_features)
+    global_features = torch.tensor(global_features)
+    target = torch.tensor(target)
 
-    ## preparo testing input e target
-    test_local_features, test_global_features, test_target = [], [], []
-    preprocessData(
-        str(Path.cwd().parent) + "\\testing.json",
-        test_local_features,
-        test_global_features,
-        test_target,
+    train_local_features, test_local_features = torch.split(
+        local_features, [56 * 3, 56 * 4]
     )
-    test_local_features = torch.tensor(test_local_features)
-    test_global_features = torch.tensor(test_global_features)
-    test_target = torch.tensor(test_target).reshape(-1)
+    train_global_features, test_global_features = torch.split(
+        global_features, [56 * 3, 56 * 4]
+    )
+    train_target, test_target = torch.split(target, [56 * 3, 56 * 4])
 
     ## istanzio il modello
     lstm = LSTM()
     optim = torch.optim.Adam(lstm.parameters(), lr=0.001)
     criterion = nn.CrossEntropyLoss()
+    softmax = nn.Softmax(dim=1)
 
-    ################################# TRAINING #################################
+    # ################################# TRAINING #################################
     loss_values = []
     accuracy = []
     epochs = 10
@@ -128,32 +140,29 @@ if __name__ == "__main__":
     plt.xlabel("epochs")
     plt.ylabel("loss")
     plt.show()
-    # plt.savefig("Python/loss.png")
 
     plt.plot(x, accuracy)
     plt.xlabel("epochs")
     plt.ylabel("accuracy")
     plt.show()
-    # plt.savefig("Python/accuracy.png")
 
     # training completo, ora testo
     with torch.no_grad():
         guess = lstm((test_local_features, test_global_features))
-        loss = criterion(guess, test_target)
-
-        torch.save(guess, "guess.pt")
-        torch.save(test_target, "target.pt")
-        # misuro l'accuracy
-        corrette = 0
-        for i in range(num_classes):
-            if torch.argmax(guess[i]) == test_target[i]:
-                corrette += 1
-
-        print("loss: ", loss.item())
-        print("Risposte corrette: ", corrette, "/", num_classes)
-        print(round(corrette / num_classes * 100, 2), "%")
-
-        print("\n\nEsempio risultato:")
-        print(guess[13])
-        print("target: ", test_target[13])
-        print("argmax: ", torch.argmax(guess[13]))
+        normalizedGuess = softmax(guess)
+        if SAVE_RESULTS:
+            torch.save(guess, "data/guess.pt")
+            torch.save(test_target, "data/target.pt")
+        # rank-1 accuracy, precision, recall and f-1 metrics
+        results = metrics(normalizedGuess, test_target)
+        # rank-5 accuracy
+        rank5 = topKAccuracy(normalizedGuess, test_target, rank=5)
+        # rank-10 accuracy
+        rank10 = topKAccuracy(normalizedGuess, test_target, rank=10)
+        results += (
+            "\nrank-5 accuracy " + str(rank5) + "\nrank-10 accuracy " + str(rank10)
+        )
+        with open("data/metrics.txt", "w") as f:
+            f.write(results)
+            f.close()
+        print(results)

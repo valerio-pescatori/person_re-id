@@ -1,21 +1,38 @@
-from sklearn.base import _pprint
+from matplotlib.pyplot import get_current_fig_manager
+from numpy import true_divide
 from sklearn.metrics import classification_report
+from sklearn.metrics import top_k_accuracy_score
 import torch
-from pprint import pprint
+from torch._C import merge_type_from_type_comment
+from torch.functional import norm
 
 
-def metrics():
-    guess = torch.load("guess.pt")
-    target = torch.load("target.pt")
-    pred = torch.zeros((56), dtype=torch.long)
+def topKAccuracy(guess, target, rank=1):
+    return round(top_k_accuracy_score(target, guess, k=rank, normalize=True), 2)
+
+
+def metrics(guess, target):
+    pred = torch.zeros((guess.size(0)), dtype=torch.long)
     for i, el in enumerate(guess):
         pred[i] = torch.argmax(el)
-
-    metrics = classification_report(target, pred, zero_division=0)
-    with open("metrics.txt", "w") as f:
-        f.write(metrics)
-        f.close()
+    return classification_report(target, pred, zero_division=0)
 
 
 if __name__ == "__main__":
-    metrics()
+    s = torch.nn.Softmax(dim=1)
+    criterion = torch.nn.CrossEntropyLoss()
+    guess = torch.load("data/guess.pt")
+    target = torch.load("data/target.pt")
+    guess = s(guess)
+
+    # rank-1 accuracy, precision, recall and f-1 metrics
+    results = metrics(guess, target)
+    # rank-5 accuracy
+    rank5 = topKAccuracy(guess, target, rank=5)
+    # rank-10 accuracy
+    rank10 = topKAccuracy(guess, target, rank=10)
+    results += "\nrank-5 accuracy " + str(rank5) + "\nrank-10 accuracy " + str(rank10)
+    with open("data/metrics.txt", "w") as f:
+        f.write(results)
+        f.close()
+    print(results)
