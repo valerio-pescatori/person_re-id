@@ -91,18 +91,33 @@ def loadJson(loc, glob, targ):
         targ += t[2]
     return loc, glob, targ
 
+def plot(train, test, epochs, yaxis, filename="plot", save=False):
+    x = [_ for _ in range(epochs)]
+    plt.plot(x, train, "bo", label="training")
+    plt.plot(x, train, "b")
+    plt.plot(x, test, "o", color="orange", label="testing")
+    plt.plot(x, test, color="orange")
+    plt.xlabel("epochs")
+    plt.ylabel(yaxis)
+    plt.legend(loc="upper right")
+    plt.show()
+    if save:
+        plt.savefig("Pyhton/"+ filename + ".png")
 
 if __name__ == "__main__":
+    # leggo dal json
     local_features, global_features, target = [], [], []
     loadJson(
         local_features,
         global_features,
         target,
     )
+    # trasformo i dati letti in tensor
     local_features = torch.tensor(local_features)
     global_features = torch.tensor(global_features)
     target = torch.tensor(target)
 
+    # splitto i dati in due set da 56*3 per il training e 56*4 per il tesing
     train_local_features, test_local_features = torch.split(
         local_features, [56 * 3, 56 * 4]
     )
@@ -117,16 +132,16 @@ if __name__ == "__main__":
     criterion = nn.CrossEntropyLoss()
     softmax = nn.Softmax(dim=1)
 
-    # ################################# TRAINING #################################
-    loss_values = []
-    accuracy = []
+    ################################## TRAINING #################################
+    train_loss = []
+    train_accuracy = []
     epochs = 10
     for e in range(epochs):
         print("Epoch: ", e)
         optim.zero_grad()
         output = lstm((train_local_features, train_global_features))
         loss = criterion(output, train_target)
-        loss_values.append(loss.item())
+        train_loss.append(loss.item())
         loss.backward()
         optim.step()
 
@@ -136,25 +151,17 @@ if __name__ == "__main__":
         for i in range(num_classes):
             if torch.argmax(output[i]) == train_target[i]:
                 corrette += 1
-        accuracy.append(round(corrette / num_classes * 100, 2))
-    x = [_ for _ in range(epochs)]
-    plt.plot(x, loss_values)
-    plt.xlabel("epochs")
-    plt.ylabel("loss")
-    plt.show()
+        train_accuracy.append(round(corrette / num_classes * 100, 2))
 
-    plt.plot(x, accuracy)
-    plt.xlabel("epochs")
-    plt.ylabel("accuracy")
-    plt.show()
-
-    # training completo, ora testo
+    ################################## TESTING #################################
     with torch.no_grad():
         guess = lstm((test_local_features, test_global_features))
+        loss = criterion(guess, test_target)
         normalized_guess = softmax(guess)
         if SAVE_RESULTS:
             torch.save(guess, "data/guess.pt")
             torch.save(test_target, "data/target.pt")
+
         # rank-1 accuracy, precision, recall and f-1 metrics
         results = metrics(normalized_guess, test_target)
         # rank-5 accuracy
