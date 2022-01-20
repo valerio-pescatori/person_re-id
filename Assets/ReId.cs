@@ -1,21 +1,18 @@
-using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
 using System;
-using System.Diagnostics;
 using ObjectsForJson;
 using Debug = UnityEngine.Debug;
 using System.IO;
-using System.Collections.Generic;
 
 // 0  => "mixamorig9:Neck",
 // 1  => "mixamorig9:Spine2",
 // 2  => "mixamorig9:RightArm", (shoulder)
 // 3  => "mixamorig9:RightForeArm", (elbow)
-// 4  => "mixamorig9:RightHand", 
+// 4  => "mixamorig9:RightHand", (wrist)
 // 5  => "mixamorig9:LeftArm", (shoulder)
 // 6  => "mixamorig9:LeftForeArm", (elbow)
-// 7  => "mixamorig9:LeftHand",
+// 7  => "mixamorig9:LeftHand", (wrist)
 // 8  => "mixamorig9:Hips", (hip middle)
 // 9  => "mixamorig9:RightUpLeg", (hip right)
 // 10 => "mixamorig9:RightLeg", (knee)
@@ -41,14 +38,10 @@ public class ReId : MonoBehaviour
     private Vector3[] lastVel;
     private Vector3[] lastPos;
     public const bool PLOT = false;
-    // la variabile training indica se sto registrando dati per la fase di training oppure per la fase di testing
-    public static bool TRAINING = false;
-    public const int numClasses = 56;
+    public static bool SPLIT_JSON = true;
     public const int nSamples = 7;
-    public const string JSON_TESTING_PATH = @".\testing.json";
-    public const string JSON_TRAINING_PATH = @".\training.json";
-
-
+    public const int numClasses = 56;
+    public const string JSON_PATH = @".\Data\data.json";
 
     // Start is called before the first frame update
     void Start()
@@ -67,14 +60,11 @@ public class ReId : MonoBehaviour
         // se l'Animation component non sta riproducendo alcuna animazione
         if (!anim.isPlaying)
         {
-            // serializzo e salvo in json
-            string json = JsonHelper.ToJson<JAnimation>(jAnims);
-
-            if (TRAINING)
-                File.WriteAllText(JSON_TRAINING_PATH, json);
-            else
-                File.WriteAllText(JSON_TESTING_PATH, json);
-
+            // // serializzo e salvo in json
+            // if (SPLIT_JSON)
+            //     SplitAndSave();
+            // else
+            //     File.WriteAllText(JSON_PATH, JsonHelper.ToJson<JAnimation>(jAnims));
             //stop play mode
             UnityEditor.EditorApplication.ExitPlaymode();
         }
@@ -88,7 +78,7 @@ public class ReId : MonoBehaviour
 
             // e creo la nuova animazione
             if (currAnim < (numClasses * nSamples) - 1)
-                jAnims[++currAnim] = new JAnimation(characterHeight / 110, currAnim);
+                jAnims[++currAnim] = new JAnimation(characterHeight / 110, animIndex);
         }
 
         // feature extraction
@@ -110,13 +100,33 @@ public class ReId : MonoBehaviour
         lastPos = positions;
         lastVel = velocities;
     }
+
+    private void SplitAndSave()
+    {
+        // splitto l'array jAnims e lo salvo in più json
+        int splitLen = (int)Math.Floor((double)jAnims.Length / 3);
+        var arr1 = new JAnimation[splitLen];
+        var arr2 = new JAnimation[splitLen];
+        var arr3 = new JAnimation[jAnims.Length - (splitLen * 2)];
+
+        Array.Copy(jAnims, 0, arr1, 0, splitLen);
+        Array.Copy(jAnims, splitLen, arr2, 0, splitLen);
+        Array.Copy(jAnims, splitLen * 2, arr3, 0, jAnims.Length - splitLen * 2);
+
+        int fileCouter = 0;
+        File.WriteAllText(JSON_PATH.Insert(JSON_PATH.IndexOf(".j"), fileCouter.ToString()), JsonHelper.ToJson<JAnimation>(arr1));
+        fileCouter++;
+        File.WriteAllText(JSON_PATH.Insert(JSON_PATH.IndexOf(".j"), fileCouter.ToString()), JsonHelper.ToJson<JAnimation>(arr2));
+        fileCouter++;
+        File.WriteAllText(JSON_PATH.Insert(JSON_PATH.IndexOf(".j"), fileCouter.ToString()), JsonHelper.ToJson<JAnimation>(arr3));
+    }
     private Vector3[] Positions()
     {
         // uso 5 joints: testa, manodx, manosx, piededx, piedesx
-        var joints5 = new GameObject[] { joints[15], joints[4], joints[7], joints[11], joints[14] };
-        var pos = new Vector3[joints5.Length];
-        for (var i = 0; i < joints5.Length; i++)
-            pos[i] = joints5[i].transform.position;
+        // var joints5 = new GameObject[] { joints[15], joints[4], joints[7], joints[11], joints[14] };
+        var pos = new Vector3[joints.Length];
+        for (var i = 0; i < joints.Length; i++)
+            pos[i] = joints[i].transform.position;
         return pos;
     }
     private Vector3[] Velocities(Vector3[] positions)
@@ -253,9 +263,10 @@ public class ReId : MonoBehaviour
     }
     private void OnDrawGizmos()
     {
+        float radius = 0.06f;
         // first sphere
         Gizmos.color = Color.magenta;
-        Gizmos.DrawSphere(joints[15].transform.position, 0.06f);
+        Gizmos.DrawSphere(joints[15].transform.position, radius);
         // neck to head
         DrawLineAndSphere(joints[15].transform.position, joints[0].transform.position, Color.magenta);
         // neck to chest

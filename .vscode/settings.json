@@ -53,6 +53,8 @@
     "obj/": true,
     "Obj/": true,
     "ProjectSettings/": true,
+    "Python/__pycache__": true,
+    "Python/Plots": true,
     "temp/": true,
     "Temp/": true,
     "UserSettings/": true

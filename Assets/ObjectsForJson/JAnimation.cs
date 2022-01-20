@@ -24,6 +24,8 @@ namespace ObjectsForJson
             this.frames = new List<JFrame>(PlayerController.NUMBER_OF_FRAMES);
         }
 
+        public JAnimation() { }
+
         public void AddFrame(JFrame frame)
         {
             if (frames.Count < PlayerController.NUMBER_OF_FRAMES)

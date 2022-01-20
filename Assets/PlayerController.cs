@@ -6,14 +6,14 @@ public class PlayerController : MonoBehaviour
     // public Animator animator;
     public const int NUMBER_OF_FRAMES = 750;
     Animation animationComponent;
-    public const int targetFrameRate = 53;
+    public const int targetFrameRate = 60;  // setto il target 3 fps in più per evitare che scenda sotto 
 
 
     // fps limitator    
     void Awake()
     {
         QualitySettings.vSyncCount = 0;
-        Application.targetFrameRate = targetFrameRate; // setto il target 3 fps in più per evitare errori 
+        Application.targetFrameRate = targetFrameRate;
     }
 
     // Use this for initialization
@@ -21,27 +21,33 @@ public class PlayerController : MonoBehaviour
     {
         animationComponent = GetComponent<Animation>();
 
-        // // testing
+        // ###################### TEST ###########################
+        int c = 0;
+        animationComponent.Play("mixamo.com" + (c == 0 ? "" : " " + c));
+        for (int i = 0; i < 30; i++)
+            animationComponent.PlayQueued("mixamo.com" + (c == 0 ? "" : " " + c));
+
+        // ########################################################
+
+        // // la prima animazione va messa in play manualmente
         // animationComponent.Play("mixamo.com");
-        // animationComponent.Play("mixamo.com 1");
-        // animationComponent.Play("mixamo.com 2");
 
-        // la prima animazione va messa in play manualmente
-        animationComponent.Play("mixamo.com");
-        for (int i = 1; i < (int)Math.Ceiling((NUMBER_OF_FRAMES - animationComponent["mixamo.com"].length * (targetFrameRate - 3)) /
-                                               (animationComponent["mixamo.com"].length * targetFrameRate)); i++)
-            animationComponent.PlayQueued("mixamo.com");
+        // // costruisco la coda di riproduzione
+        // var playQueue = GeneratePlayQueue();
 
-        // costruisco la coda di riproduzione
-        var toBePlayed = new Queue<String>();
-        for (int j = 0; j < 7; j++)
+        // // riproduco ogni animazione nella coda per 750 frames
+        // foreach (var anim in playQueue)
+        //     for (int i = 0; i < (int)Math.Ceiling(NUMBER_OF_FRAMES / (animationComponent[anim].length * (targetFrameRate - 3))); i++)
+        //         animationComponent.PlayQueued(anim);
+    }
+
+    private Queue<String> GeneratePlayQueue()
+    {
+        var queue = new Queue<String>();
+        for (int j = 0; j < ReId.nSamples; j++)
             for (int i = 0; i < 56; i++)
-                toBePlayed.Enqueue(i == 0 ? "mixamo.com" : "mixamo.com " + i);
-
-        // riproduco le animazioni
-        foreach (var anim in toBePlayed)
-            for (int i = 0; i < (int)Math.Ceiling(NUMBER_OF_FRAMES / (animationComponent[anim].length * (targetFrameRate - 3))); i++)
-                animationComponent.PlayQueued(anim);
+                queue.Enqueue(i == 0 ? "mixamo.com" : "mixamo.com " + i);
+        return queue;
     }
 
     // Update is called once per frame
@@ -50,7 +56,7 @@ public class PlayerController : MonoBehaviour
         if (Application.targetFrameRate != targetFrameRate)
             Application.targetFrameRate = targetFrameRate;
 
-        // tutto il blocco sottostante serve per il controllo del character tramite l'Animator 
+        // tutto il blocco sottostante serve per il controllo del character tramite l'Animator Component
         // (usato per testare il corretto funzionamento delle animazioni)
         // dato che l'esecuzione delle animazioni parte in automatico non ne ho bisogno
 
