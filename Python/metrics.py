@@ -1,10 +1,6 @@
-from matplotlib.pyplot import get_current_fig_manager
-from numpy import true_divide
 from sklearn.metrics import classification_report
 from sklearn.metrics import top_k_accuracy_score
 import torch
-from torch._C import merge_type_from_type_comment
-from torch.functional import norm
 
 
 def topKAccuracy(guess, target, rank=1):

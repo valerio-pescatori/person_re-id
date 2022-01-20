@@ -9,10 +9,10 @@ using System.IO;
 // 1  => "mixamorig9:Spine2",
 // 2  => "mixamorig9:RightArm", (shoulder)
 // 3  => "mixamorig9:RightForeArm", (elbow)
-// 4  => "mixamorig9:RightHand", 
+// 4  => "mixamorig9:RightHand", (wrist)
 // 5  => "mixamorig9:LeftArm", (shoulder)
 // 6  => "mixamorig9:LeftForeArm", (elbow)
-// 7  => "mixamorig9:LeftHand",
+// 7  => "mixamorig9:LeftHand", (wrist)
 // 8  => "mixamorig9:Hips", (hip middle)
 // 9  => "mixamorig9:RightUpLeg", (hip right)
 // 10 => "mixamorig9:RightLeg", (knee)
@@ -60,11 +60,11 @@ public class ReId : MonoBehaviour
         // se l'Animation component non sta riproducendo alcuna animazione
         if (!anim.isPlaying)
         {
-            // serializzo e salvo in json
-            if (SPLIT_JSON)
-                SplitAndSave();
-            else
-                File.WriteAllText(JSON_PATH, JsonHelper.ToJson<JAnimation>(jAnims));
+            // // serializzo e salvo in json
+            // if (SPLIT_JSON)
+            //     SplitAndSave();
+            // else
+            //     File.WriteAllText(JSON_PATH, JsonHelper.ToJson<JAnimation>(jAnims));
             //stop play mode
             UnityEditor.EditorApplication.ExitPlaymode();
         }
@@ -263,9 +263,10 @@ public class ReId : MonoBehaviour
     }
     private void OnDrawGizmos()
     {
+        float radius = 0.06f;
         // first sphere
         Gizmos.color = Color.magenta;
-        Gizmos.DrawSphere(joints[15].transform.position, 0.06f);
+        Gizmos.DrawSphere(joints[15].transform.position, radius);
         // neck to head
         DrawLineAndSphere(joints[15].transform.position, joints[0].transform.position, Color.magenta);
         // neck to chest
@@ -304,6 +305,38 @@ public class ReId : MonoBehaviour
         DrawLineAndSphere(joints[10].transform.position, joints[11].transform.position, Color.cyan);
         // r ankle to r foot
         DrawLineAndSphere(joints[11].transform.position, joints[17].transform.position, Color.cyan);
+
+        // // hunchback
+        // // punti dall'alto al basso:
+        // // 0 => neck
+        // // 1 => spine 2
+        // // 18 => spine 1
+        // // 19 => spine
+        // // 8 => hips
+        // Gizmos.color = Color.black;
+        // Gizmos.DrawLine(joints[0].transform.position, joints[18].transform.position);
+        // Gizmos.DrawLine(joints[18].transform.position, joints[8].transform.position);
+        // Gizmos.DrawLine(joints[8].transform.position, joints[0].transform.position);
+        // Gizmos.DrawSphere(joints[0].transform.position, radius);
+        // Gizmos.DrawSphere(joints[8].transform.position, radius);
+        // Gizmos.DrawSphere(joints[18].transform.position, radius);
+
+        // outtoeing
+
+        Gizmos.color = Color.black;
+        var point3r = new Vector3(joints[11].transform.position.x - 2, joints[11].transform.position.y, joints[11].transform.position.z);
+        var point3l = new Vector3(joints[14].transform.position.x + 2, joints[14].transform.position.y, joints[14].transform.position.z);
+
+        Gizmos.DrawLine(joints[11].transform.position, joints[17].transform.position);
+        Gizmos.DrawLine(joints[17].transform.position, point3r);
+        Gizmos.DrawLine(point3r, joints[11].transform.position);
+        Gizmos.DrawSphere(joints[11].transform.position, radius);
+        Gizmos.DrawSphere(joints[17].transform.position, radius);
+        Gizmos.DrawSphere(point3r, radius);
+
+
+
+        // //#################
     }
     private void DrawLineAndSphere(Vector3 from, Vector3 to, Color color, float radius = 0.06f)
     {

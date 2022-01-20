@@ -27,10 +27,9 @@ from metrics import metrics
 # re-identification ranking
 
 # Hyper-parameters
+SAVE_RESULTS = True #se True salva i risultati del testing e i relativi target in due file "guess.pt" e "target.pt"
 N_OF_FRAMES = 750
-SAVE_RESULTS = True
 input_size = 188
-# input_size = 8 + (5 * 9)  # 8 --> ot, hb, bo, bct. 5*3 --> pos, vel e acc per 5 joints
 hidden_size = 512
 num_classes = 56  # numero totale di animazioni
 global_features_size = 1
@@ -46,10 +45,13 @@ class LSTM(nn.Module):
     def forward(self, input):
         output = 0
         local_f, global_f = input
+        print("LSTM LAYER INPUT:", local_f.shape)
         h_t, _ = self.lstm(local_f)
         # output = self.dense(h_t)
         output = torch.zeros((local_f.size(0), num_classes))
         for i, anim in enumerate(h_t):
+            a = torch.cat((anim.reshape(-1), global_f[i]))
+            print("LINEAR LAYER INPUT", anim.shape)
             dense_input = torch.cat((anim.reshape(-1), global_f[i]))
             output[i] = self.dense(dense_input)
         return output
@@ -149,16 +151,16 @@ if __name__ == "__main__":
     # training completo, ora testo
     with torch.no_grad():
         guess = lstm((test_local_features, test_global_features))
-        normalizedGuess = softmax(guess)
+        normalized_guess = softmax(guess)
         if SAVE_RESULTS:
             torch.save(guess, "data/guess.pt")
             torch.save(test_target, "data/target.pt")
         # rank-1 accuracy, precision, recall and f-1 metrics
-        results = metrics(normalizedGuess, test_target)
+        results = metrics(normalized_guess, test_target)
         # rank-5 accuracy
-        rank5 = topKAccuracy(normalizedGuess, test_target, rank=5)
+        rank5 = topKAccuracy(normalized_guess, test_target, rank=5)
         # rank-10 accuracy
-        rank10 = topKAccuracy(normalizedGuess, test_target, rank=10)
+        rank10 = topKAccuracy(normalized_guess, test_target, rank=10)
         results += (
             "\nrank-5 accuracy " + str(rank5) + "\nrank-10 accuracy " + str(rank10)
         )

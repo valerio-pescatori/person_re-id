@@ -22,23 +22,23 @@ public class PlayerController : MonoBehaviour
         animationComponent = GetComponent<Animation>();
 
         // ###################### TEST ###########################
-
-        // animationComponent.Play("mixamo.com");
-        // animationComponent.PlayQueued("mixamo.com 1");
-        // animationComponent.PlayQueued("mixamo.com 2");
+        int c = 0;
+        animationComponent.Play("mixamo.com" + (c == 0 ? "" : " " + c));
+        for (int i = 0; i < 30; i++)
+            animationComponent.PlayQueued("mixamo.com" + (c == 0 ? "" : " " + c));
 
         // ########################################################
 
-        // la prima animazione va messa in play manualmente
-        animationComponent.Play("mixamo.com");
+        // // la prima animazione va messa in play manualmente
+        // animationComponent.Play("mixamo.com");
 
-        // costruisco la coda di riproduzione
-        var playQueue = GeneratePlayQueue();
+        // // costruisco la coda di riproduzione
+        // var playQueue = GeneratePlayQueue();
 
-        // riproduco ogni animazione nella coda per 750 frames
-        foreach (var anim in playQueue)
-            for (int i = 0; i < (int)Math.Ceiling(NUMBER_OF_FRAMES / (animationComponent[anim].length * (targetFrameRate - 3))); i++)
-                animationComponent.PlayQueued(anim);
+        // // riproduco ogni animazione nella coda per 750 frames
+        // foreach (var anim in playQueue)
+        //     for (int i = 0; i < (int)Math.Ceiling(NUMBER_OF_FRAMES / (animationComponent[anim].length * (targetFrameRate - 3))); i++)
+        //         animationComponent.PlayQueued(anim);
     }
 
     private Queue<String> GeneratePlayQueue()
