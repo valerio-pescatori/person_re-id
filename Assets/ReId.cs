@@ -259,6 +259,22 @@ public class ReId : MonoBehaviour
         // neck to head
         DrawLineAndSphere(joints[15].transform.position, joints[0].transform.position, Color.magenta);
         // neck to chest
+        // hip middle to l hip 
+        DrawLineAndSphere(joints[8].transform.position, joints[12].transform.position, Color.blue);
+        // l hip to l knee
+        DrawLineAndSphere(joints[12].transform.position, joints[13].transform.position, Color.blue);
+        // l knee to l ankle
+        DrawLineAndSphere(joints[13].transform.position, joints[14].transform.position, Color.blue);
+        // l ankle to l foot
+        DrawLineAndSphere(joints[14].transform.position, joints[16].transform.position, Color.blue);
+        // hip middle to r hip
+        DrawLineAndSphere(joints[8].transform.position, joints[9].transform.position, Color.cyan);
+        // r hip to r knee
+        DrawLineAndSphere(joints[9].transform.position, joints[10].transform.position, Color.cyan);
+        // r knee to r ankle
+        DrawLineAndSphere(joints[10].transform.position, joints[11].transform.position, Color.cyan);
+        // r ankle to r foot
+        DrawLineAndSphere(joints[11].transform.position, joints[17].transform.position, Color.cyan);
         DrawLineAndSphere(joints[0].transform.position, joints[1].transform.position, Color.red);
         // chest to  shoulder
         DrawLineAndSphere(joints[1].transform.position, joints[5].transform.position, Color.green);
@@ -278,22 +294,6 @@ public class ReId : MonoBehaviour
         DrawLineAndSphere(joints[18].transform.position, joints[19].transform.position, new Color(1, 0.56f, 0.4f, 1));
         // spine to hip
         DrawLineAndSphere(joints[19].transform.position, joints[8].transform.position, new Color(1, 0.61f, 0.2f, 1));
-        // hip middle to l hip 
-        DrawLineAndSphere(joints[8].transform.position, joints[12].transform.position, Color.blue);
-        // l hip to l knee
-        DrawLineAndSphere(joints[12].transform.position, joints[13].transform.position, Color.blue);
-        // l knee to l ankle
-        DrawLineAndSphere(joints[13].transform.position, joints[14].transform.position, Color.blue);
-        // l ankle to l foot
-        DrawLineAndSphere(joints[14].transform.position, joints[16].transform.position, Color.blue);
-        // hip middle to r hip
-        DrawLineAndSphere(joints[8].transform.position, joints[9].transform.position, Color.cyan);
-        // r hip to r knee
-        DrawLineAndSphere(joints[9].transform.position, joints[10].transform.position, Color.cyan);
-        // r knee to r ankle
-        DrawLineAndSphere(joints[10].transform.position, joints[11].transform.position, Color.cyan);
-        // r ankle to r foot
-        DrawLineAndSphere(joints[11].transform.position, joints[17].transform.position, Color.cyan);
     }
     private void DrawLineAndSphere(Vector3 from, Vector3 to, Color color, float radius = 0.06f)
     {
