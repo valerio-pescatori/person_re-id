@@ -1,13 +1,11 @@
-from turtle import ht
-from unittest import TestLoader
-from joblib import MemorizedResult
-import torch
-from torch.functional import norm
-import torch.nn as nn
-import helper as h
+from threading import local
 import matplotlib.pyplot as plt
-from metrics import topKAccuracy
-from metrics import metrics
+from sklearn import impute
+import torch
+import torch.nn as nn
+
+import helper as h
+from metrics import metrics, topKAccuracy
 
 # architettura nn:
 # 1  lstm layer x local mf
@@ -42,44 +40,63 @@ class LSTM(nn.Module):
         super(LSTM, self).__init__()
         # definisco la struttura
         self.lstm = nn.LSTM(input_size, hidden_size, batch_first=True)
-        self.dense = nn.Linear(hidden_size * N_OF_FRAMES + global_features_size, num_classes)
+        self.linear = nn.Linear(hidden_size * N_OF_FRAMES + global_features_size, num_classes)
 
-    def forward(self, input):
+    def forward(self, input, batch_size):
         output = 0
         local_f, global_f = input
         h_t, _ = self.lstm(local_f)
         output = torch.zeros((local_f.size(0), num_classes))
         for i, anim in enumerate(h_t):
-            dense_input = torch.cat((anim.reshape(-1), global_f[i]))
-            output[i] = self.dense(dense_input)
+            linear_input = torch.cat((anim.reshape(-1), global_f[i]))
+            output[i] = self.linear(linear_input)
         return output
 
 class GRU(nn.Module):
     def __init__(self):
         super(GRU, self).__init__()
         self.gru = nn.GRU(input_size, hidden_size, batch_first=True)
-        self.dense = nn.Linear(hidden_size * N_OF_FRAMES + global_features_size, num_classes)
+        self.linear = nn.Linear(hidden_size * N_OF_FRAMES + global_features_size, num_classes)
 
-    def forward(self, input):
+    def forward(self, input, batch_size):
         output = 0
         local_f, global_f = input
         h_t, _ = self.gru(local_f)
         output = torch.zeros((local_f.size(0), num_classes))
-        # la shape dovrebbe essere (56*3, 750, hidden_size)
         for i, anim in enumerate(h_t):
-            dense_input = torch.cat((anim.reshape(-1), global_f[i]))
-            output[i] = self.dense(dense_input)
+            linear_input = torch.cat((anim.reshape(-1), global_f[i]))
+            output[i] = self.linear(linear_input)
         return output
 
-def train(model, optim, criterion, local_features, global_features, target, show_plot=True):
+class DeepMLP(nn.Module):
+    def __init__(self):
+        super(DeepMLP, self).__init__()  
+        self.l1 = nn.Linear(input_size * N_OF_FRAMES + global_features_size, hidden_size)
+        self.relu = nn.ReLU()
+        self.l2 = nn.Linear(hidden_size, hidden_size)
+        self.sigmoid = nn.Sigmoid()
+        self.l3 = nn.Linear(hidden_size, num_classes)
+
+    def forward(self, input, batch_size):
+        local_f, global_f = input
+        local_f = local_f.reshape((batch_size, -1))
+        features = torch.cat( (local_f, global_f), 1)
+
+        out = self.l1(features)
+        out = self.relu(out)
+        out = self.l2(out)
+        out = self.sigmoid(out)
+        return self.l3(out)
+         
+
+def train(model, optim, criterion, local_features, global_features, target, batch_size=56*3, epochs=10, show_plot=True):
     model_name = model.__class__.__name__
     loss_values = []
     accuracy_values = []
-    epochs = 10
     for e in range(epochs):
         print("Epoch: ", e)
         optim.zero_grad()
-        output = model((local_features, global_features))
+        output = model((local_features, global_features), batch_size)
         loss = criterion(output, target)
         loss_values.append(loss.item())
         loss.backward()
@@ -106,22 +123,22 @@ def train(model, optim, criterion, local_features, global_features, target, show
         plt.ylabel("accuracy")
         plt.show()
 
-def test(model, local_features, global_features, target, save_results=True):
+def test(model, local_features, global_features, target, batch_size=56*4, save_results=True):
     softmax = nn.Softmax(dim=1)
     model_name = model.__class__.__name__
 
     with torch.no_grad():
-        guess = model((local_features, global_features))
+        guess = model((local_features, global_features), batch_size)
         normalized_guess = softmax(guess)
         if save_results:
             torch.save(guess, "data/" + model_name + "_guess.pt")
-            torch.save(test_target, "data/" + model_name + "_target.pt")
+            torch.save(target, "data/" + model_name + "_target.pt")
         # rank-1 accuracy, precision, recall and f-1 metrics
-        results = metrics(normalized_guess, test_target)
+        results = metrics(normalized_guess, target)
         # rank-5 accuracy
-        rank5 = topKAccuracy(normalized_guess, test_target, rank=5)
+        rank5 = topKAccuracy(normalized_guess, target, rank=5)
         # rank-10 accuracy
-        rank10 = topKAccuracy(normalized_guess, test_target, rank=10)
+        rank10 = topKAccuracy(normalized_guess, target, rank=10)
         results += (
             "\nrank-5 accuracy \t\t\t" + str(rank5) + "\nrank-10 accuracy \t\t\t" + str(rank10)
         )
@@ -158,8 +175,10 @@ if __name__ == "__main__":
     lstm_optim = torch.optim.Adam(lstm.parameters(), lr=0.001)
     gru=GRU()
     gru_optim = torch.optim.Adam(gru.parameters(), lr=0.001)
+    mlp = DeepMLP()
+    mlp_optim = torch.optim.Adam(mlp.parameters(), lr=0.001)
 
-    # loss function e softmax per l'output
+    # loss function
     criterion = nn.CrossEntropyLoss()
 
     # train(lstm, lstm_optim, criterion, train_local_features, train_global_features, train_target)
@@ -167,3 +186,6 @@ if __name__ == "__main__":
 
     train(gru, gru_optim, criterion, train_local_features, train_global_features, train_target)
     test(gru, test_local_features, test_global_features, test_target)
+
+    # train(mlp, mlp_optim, criterion, train_local_features, train_global_features, train_target, epochs=500)
+    # test(mlp, test_local_features, test_global_features, test_target)
