@@ -157,12 +157,10 @@ public class ReId : MonoBehaviour
 
         // punti dall'alto al basso:
         // 0 => neck
-        // 1 => spine 2
         // 18 => spine 1
-        // 19 => spine
         // 8 => hips
 
-        //primo triangolo: hips, spine1, neck
+        //triangolo: hips, spine1, neck
         float[] angles = CalculateAngles(joints[8].transform.position, joints[18].transform.position, joints[0].transform.position);
 
         // controllo non ci siano NaN (compare 1 NaN nel primo frame di una sola animazione)
