@@ -1,14 +1,10 @@
-from glob import glob
-from threading import local
-from xml.sax.xmlreader import InputSource
 import matplotlib.pyplot as plt
-from sklearn import impute
 import torch
 import torch.nn as nn
-from tcn import TemporalConvNet
 
 import utils
 from metrics import metrics, topKAccuracy
+from tcn import TemporalConvNet
 
 # architettura nn:
 # 1  lstm layer x local mf
@@ -26,12 +22,7 @@ from metrics import metrics, topKAccuracy
 # out-toeing r
 # hunchback
 
-# re-identification metrics performance metrics
-# re-identification ranking
-
 # Hyper-parameters
-# se True salva i risultati del testing e i relativi target in due file "guess.pt" e "target.pt"
-SAVE_RESULTS = True
 N_OF_FRAMES = 750
 input_size = 188
 hidden_size = 512
@@ -47,7 +38,7 @@ class LSTM(nn.Module):
         self.linear = nn.Linear(
             hidden_size * N_OF_FRAMES + global_features_size, num_classes)
 
-    def forward(self, input, batch_size):
+    def forward(self, input):
         output = 0
         local_f, global_f = input
         h_t, _ = self.lstm(local_f)
@@ -65,7 +56,7 @@ class GRU(nn.Module):
         self.linear = nn.Linear(
             hidden_size * N_OF_FRAMES + global_features_size, num_classes)
 
-    def forward(self, input, batch_size):
+    def forward(self, input):
         output = 0
         local_f, global_f = input
         h_t, _ = self.gru(local_f)
@@ -86,10 +77,10 @@ class TCN(nn.Module):
     def init_weights(self):
         self.linear.weight.data.normal_(0, 0.01)
 
-    def forward(self, x, batch_size):
+    def forward(self, x):
         local_f, global_f = x
         local_f = local_f.reshape(
-            (batch_size, input_size, N_OF_FRAMES))  #
+            (-1, input_size, N_OF_FRAMES))  #
         y1 = self.tcn(local_f)
         linear_in = torch.cat((y1[:, :, -1], global_f), 1)
         return self.linear(linear_in)
@@ -102,23 +93,26 @@ class DeepMLP(nn.Module):
                             global_features_size, hidden_size)
         self.relu = nn.ReLU()
         self.l2 = nn.Linear(hidden_size, hidden_size)
-        self.sigmoid = nn.Sigmoid()
-        self.l3 = nn.Linear(hidden_size, num_classes)
+        self.l3 = nn.Linear(hidden_size, hidden_size)
+        self.l4 = nn.Linear(hidden_size, hidden_size)
+        self.l5 = nn.Linear(hidden_size, hidden_size)
+        self.l6 = nn.Linear(hidden_size, num_classes)
 
-    def forward(self, input, batch_size):
-        local_f, global_f = train_local_features
-        local_f = local_f.reshape((56*3, -1))
-        features = torch.cat((local_f, global_f), 1)
-
-        out = self.l1(features)
+    def forward(self, input):
+        out = self.l1(input)
         out = self.relu(out)
         out = self.l2(out)
-        out = self.sigmoid(out)
-        return self.l3(out)
+        out = self.relu(out)
+        out = self.l3(out)
+        out = self.relu(out)
+        out = self.l4(out)
+        out = self.relu(out)
+        out = self.l5(out)
+        out = self.relu(out)
+        return self.l6(out)
 
 
-def train(model, optim, criterion, local_features, global_features, target, batch_size=56*3, epochs=10, show_plot=True, save_state=False, load_state=False):
-
+def train(model, optim, criterion, features, target, epochs=10, show_plot=True, save_state=False, load_state=False):
     model_name = model.__class__.__name__
     if(load_state):
         model.load_state_dict(torch.load(
@@ -129,7 +123,7 @@ def train(model, optim, criterion, local_features, global_features, target, batc
     for e in range(epochs):
         print("Epoch: ", e)
         optim.zero_grad()
-        output = model((local_features, global_features), batch_size)
+        output = model(features)
         loss = criterion(output, target)
         loss_values.append(loss.item())
         loss.backward()
@@ -160,12 +154,12 @@ def train(model, optim, criterion, local_features, global_features, target, batc
         plt.show()
 
 
-def test(model, local_features, global_features, target, batch_size=56*4, save_results=True):
+def test(model, features, target, save_results=True):
     softmax = nn.Softmax(dim=1)
     model_name = model.__class__.__name__
 
     with torch.no_grad():
-        guess = model((local_features, global_features), batch_size)
+        guess = model(features)
         normalized_guess = softmax(guess)
         if save_results:
             torch.save(guess, "data/" + model_name + "_guess.pt")
@@ -187,7 +181,7 @@ def test(model, local_features, global_features, target, batch_size=56*4, save_r
 
 
 if __name__ == "__main__":
-    # carico i dataset dal JSON
+    # carico il dataset dai JSON
     local_features, global_features, target = [], [], []
     utils.loadJson(
         local_features,
@@ -223,20 +217,25 @@ if __name__ == "__main__":
     # loss function
     criterion = nn.CrossEntropyLoss()
 
-    # train(lstm, lstm_optim, criterion, train_local_features, train_global_features, train_target)
-    # test(lstm, test_local_features, test_global_features, test_target)
+    # ##### LSTM #####
+    # train(lstm, lstm_optim, criterion,
+    #       (train_local_features, train_global_features), train_target)
+    # test(lstm, (test_local_features, test_global_features), test_target)
 
-    # train(gru, gru_optim, criterion, train_local_features,
-    #       train_global_features, train_target)
-    # test(gru, test_local_features, test_global_features, test_target)
+    # ##### GRU #####
+    # train(gru, gru_optim, criterion, (train_local_features,
+    #       train_global_features), train_target)
+    # test(gru, (test_local_features, test_global_features), test_target)
 
-    # preparo i dati per mlp
-    # local_f_mlp, global_f_mlp = train_local_features
-    # local_f_mlp = local_f_mlp.reshape((56*3, -1))
-    # features = torch.cat((local_f_mlp, global_f_mlp), 1)
-    # train(mlp, mlp_optim, criterion, features, train_global_features, train_target, epochs=500)
-    # test(mlp, test_local_features, test_global_features, test_target)
+    # ##### MLP #####
+    # train_mlp = train_local_features.reshape((56*3, -1))
+    # test_mlp = test_local_features.reshape((56*4, -1))
+    # train_mlp = torch.cat((train_mlp, train_global_features), 1)
+    # test_mlp = torch.cat((test_mlp, test_global_features), 1)
+    # train(mlp, mlp_optim, criterion, train_mlp, train_target, epochs=150)
+    # test(mlp, test_mlp, test_target)
 
-    train(tcn, tcn_optim, criterion, train_local_features,
-          train_global_features, train_target, epochs=20, save_state=True, load_state=True)
-    test(tcn, test_local_features, test_global_features, test_target)
+    # ##### TCN #####
+    train(tcn, tcn_optim, criterion, (train_local_features, train_global_features),
+          train_target, epochs=20, save_state=True, load_state=False)
+    test(tcn, (test_local_features, test_global_features), test_target)
