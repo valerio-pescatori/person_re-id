@@ -1,10 +1,13 @@
+from glob import glob
 from threading import local
+from xml.sax.xmlreader import InputSource
 import matplotlib.pyplot as plt
 from sklearn import impute
 import torch
 import torch.nn as nn
+from tcn import TemporalConvNet
 
-import helper as h
+import utils
 from metrics import metrics, topKAccuracy
 
 # architettura nn:
@@ -27,7 +30,8 @@ from metrics import metrics, topKAccuracy
 # re-identification ranking
 
 # Hyper-parameters
-SAVE_RESULTS = True #se True salva i risultati del testing e i relativi target in due file "guess.pt" e "target.pt"
+# se True salva i risultati del testing e i relativi target in due file "guess.pt" e "target.pt"
+SAVE_RESULTS = True
 N_OF_FRAMES = 750
 input_size = 188
 hidden_size = 512
@@ -40,7 +44,8 @@ class LSTM(nn.Module):
         super(LSTM, self).__init__()
         # definisco la struttura
         self.lstm = nn.LSTM(input_size, hidden_size, batch_first=True)
-        self.linear = nn.Linear(hidden_size * N_OF_FRAMES + global_features_size, num_classes)
+        self.linear = nn.Linear(
+            hidden_size * N_OF_FRAMES + global_features_size, num_classes)
 
     def forward(self, input, batch_size):
         output = 0
@@ -52,11 +57,13 @@ class LSTM(nn.Module):
             output[i] = self.linear(linear_input)
         return output
 
+
 class GRU(nn.Module):
     def __init__(self):
         super(GRU, self).__init__()
         self.gru = nn.GRU(input_size, hidden_size, batch_first=True)
-        self.linear = nn.Linear(hidden_size * N_OF_FRAMES + global_features_size, num_classes)
+        self.linear = nn.Linear(
+            hidden_size * N_OF_FRAMES + global_features_size, num_classes)
 
     def forward(self, input, batch_size):
         output = 0
@@ -68,29 +75,55 @@ class GRU(nn.Module):
             output[i] = self.linear(linear_input)
         return output
 
+
+class TCN(nn.Module):
+    def __init__(self, input_size, output_size, num_channels):
+        super(TCN, self).__init__()
+        self.tcn = TemporalConvNet(input_size, num_channels)
+        self.linear = nn.Linear(num_channels[-1] + 1, output_size)
+        self.init_weights()
+
+    def init_weights(self):
+        self.linear.weight.data.normal_(0, 0.01)
+
+    def forward(self, x, batch_size):
+        local_f, global_f = x
+        local_f = local_f.reshape(
+            (batch_size, input_size, N_OF_FRAMES))  #
+        y1 = self.tcn(local_f)
+        linear_in = torch.cat((y1[:, :, -1], global_f), 1)
+        return self.linear(linear_in)
+
+
 class DeepMLP(nn.Module):
     def __init__(self):
-        super(DeepMLP, self).__init__()  
-        self.l1 = nn.Linear(input_size * N_OF_FRAMES + global_features_size, hidden_size)
+        super(DeepMLP, self).__init__()
+        self.l1 = nn.Linear(input_size * N_OF_FRAMES +
+                            global_features_size, hidden_size)
         self.relu = nn.ReLU()
         self.l2 = nn.Linear(hidden_size, hidden_size)
         self.sigmoid = nn.Sigmoid()
         self.l3 = nn.Linear(hidden_size, num_classes)
 
     def forward(self, input, batch_size):
-        local_f, global_f = input
-        local_f = local_f.reshape((batch_size, -1))
-        features = torch.cat( (local_f, global_f), 1)
+        local_f, global_f = train_local_features
+        local_f = local_f.reshape((56*3, -1))
+        features = torch.cat((local_f, global_f), 1)
 
         out = self.l1(features)
         out = self.relu(out)
         out = self.l2(out)
         out = self.sigmoid(out)
         return self.l3(out)
-         
 
-def train(model, optim, criterion, local_features, global_features, target, batch_size=56*3, epochs=10, show_plot=True):
+
+def train(model, optim, criterion, local_features, global_features, target, batch_size=56*3, epochs=10, show_plot=True, save_state=False, load_state=False):
+
     model_name = model.__class__.__name__
+    if(load_state):
+        model.load_state_dict(torch.load(
+            "model_states/" + model_name + "_state_dict.pt"))
+
     loss_values = []
     accuracy_values = []
     for e in range(epochs):
@@ -109,6 +142,9 @@ def train(model, optim, criterion, local_features, global_features, target, batc
             if torch.argmax(output[i]) == target[i]:
                 corrette += 1
         accuracy_values.append(round(corrette / num_classes * 100, 2))
+    if(save_state):
+        torch.save(model.state_dict(), "model_states/" +
+                   model_name + "_state_dict.pt")
     if show_plot:
         x = [_ for _ in range(epochs)]
         plt.plot(x, loss_values)
@@ -122,6 +158,7 @@ def train(model, optim, criterion, local_features, global_features, target, batc
         plt.xlabel("epochs")
         plt.ylabel("accuracy")
         plt.show()
+
 
 def test(model, local_features, global_features, target, batch_size=56*4, save_results=True):
     softmax = nn.Softmax(dim=1)
@@ -140,22 +177,24 @@ def test(model, local_features, global_features, target, batch_size=56*4, save_r
         # rank-10 accuracy
         rank10 = topKAccuracy(normalized_guess, target, rank=10)
         results += (
-            "\nrank-5 accuracy \t\t\t" + str(rank5) + "\nrank-10 accuracy \t\t\t" + str(rank10)
+            "\nrank-5 accuracy \t\t\t" +
+            str(rank5) + "\nrank-10 accuracy \t\t\t" + str(rank10)
         )
         if(save_results):
             with open("data/" + model_name + "_metrics.txt", "w") as f:
                 f.write(results)
                 f.close()
 
+
 if __name__ == "__main__":
     # carico i dataset dal JSON
     local_features, global_features, target = [], [], []
-    h.loadJson(
+    utils.loadJson(
         local_features,
         global_features,
         target,
     )
-    
+
     # converto in tensor
     local_features = torch.tensor(local_features)
     global_features = torch.tensor(global_features)
@@ -173,10 +212,13 @@ if __name__ == "__main__":
     # istanzio i modelli
     lstm = LSTM()
     lstm_optim = torch.optim.Adam(lstm.parameters(), lr=0.001)
-    gru=GRU()
+    gru = GRU()
     gru_optim = torch.optim.Adam(gru.parameters(), lr=0.001)
     mlp = DeepMLP()
     mlp_optim = torch.optim.Adam(mlp.parameters(), lr=0.001)
+    tcn = TCN(input_size, num_classes, [
+              hidden_size, hidden_size, hidden_size, hidden_size])
+    tcn_optim = torch.optim.Adam(tcn.parameters(), lr=0.001)
 
     # loss function
     criterion = nn.CrossEntropyLoss()
@@ -184,8 +226,17 @@ if __name__ == "__main__":
     # train(lstm, lstm_optim, criterion, train_local_features, train_global_features, train_target)
     # test(lstm, test_local_features, test_global_features, test_target)
 
-    train(gru, gru_optim, criterion, train_local_features, train_global_features, train_target)
-    test(gru, test_local_features, test_global_features, test_target)
+    # train(gru, gru_optim, criterion, train_local_features,
+    #       train_global_features, train_target)
+    # test(gru, test_local_features, test_global_features, test_target)
 
-    # train(mlp, mlp_optim, criterion, train_local_features, train_global_features, train_target, epochs=500)
+    # preparo i dati per mlp
+    # local_f_mlp, global_f_mlp = train_local_features
+    # local_f_mlp = local_f_mlp.reshape((56*3, -1))
+    # features = torch.cat((local_f_mlp, global_f_mlp), 1)
+    # train(mlp, mlp_optim, criterion, features, train_global_features, train_target, epochs=500)
     # test(mlp, test_local_features, test_global_features, test_target)
+
+    train(tcn, tcn_optim, criterion, train_local_features,
+          train_global_features, train_target, epochs=20, save_state=True, load_state=True)
+    test(tcn, test_local_features, test_global_features, test_target)
