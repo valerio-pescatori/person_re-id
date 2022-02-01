@@ -1,3 +1,4 @@
+from json import loads
 import matplotlib.pyplot as plt
 import torch
 import torch.nn as nn
@@ -152,13 +153,16 @@ class DeepMLP2(nn.Module):
 
 def train(model, optim, criterion, data, target, epochs=10, show_plot=True, save_state=False, load_state=False):
     model_name = model.__class__.__name__
+    last_epoch = 0
     if(load_state):
-        model.load_state_dict(torch.load(
-            "model_states/" + model_name + "_state_dict.pt"))
-
+        checkpoint = torch.load("model_states/"+model_name+"_state.pt")
+        model.load_state_dict(checkpoint['model_state_dict'])
+        optim.load_state_dict(checkpoint['optimizer_state_dict'])
+        last_epoch = checkpoint['epoch']
+        loss = checkpoint['loss']
     loss_values = []
     accuracy_values = []
-    for e in range(epochs):
+    for e in range(last_epoch, last_epoch + epochs):
         print("Epoch: ", e)
         optim.zero_grad()
         output = model(data)
@@ -175,10 +179,14 @@ def train(model, optim, criterion, data, target, epochs=10, show_plot=True, save
                 corrette += 1
         accuracy_values.append(round(corrette / num_classes * 100, 2))
     if(save_state):
-        torch.save(model.state_dict(), "model_states/" +
-                   model_name + "_state_dict.pt")
+        torch.save({
+            'epoch': last_epoch + epochs,
+            'model_state_dict': model.state_dict(),
+            'optimizer_state_dict': optim.state_dict(),
+            'loss': loss_values[-1],
+        }, "model_states/" + model_name + "_state.pt")
     if show_plot:
-        x = [_ for _ in range(epochs)]
+        x = [_ for _ in range(last_epoch, last_epoch + epochs)]
         plt.plot(x, loss_values)
         plt.title(model_name)
         plt.xlabel("epochs")
@@ -245,6 +253,8 @@ if __name__ == "__main__":
     gru_optim = torch.optim.Adam(gru.parameters(), lr=0.001)
     mlp = DeepMLP()
     mlp_optim = torch.optim.Adam(mlp.parameters(), lr=0.001)
+    mlp2 = DeepMLP2()
+    mlp2_optim = torch.optim.Adam(mlp2.parameters(), lr=0.001)
     tcn = TCN(input_size, num_classes, [
               hidden_size, hidden_size, hidden_size, hidden_size])
     tcn_optim = torch.optim.Adam(tcn.parameters(), lr=0.001)
@@ -265,9 +275,9 @@ if __name__ == "__main__":
     # test(gru, (test_local_features, test_global_features), test_target)
 
     # ##### TCN #####
-    # train(tcn, tcn_optim, criterion, (train_local_features, train_global_features),
-    #       train_target, epochs=20, save_state=True, load_state=True)
-    # test(tcn, (test_local_features, test_global_features), test_target)
+    train(tcn, tcn_optim, criterion, (train_local_features, train_global_features),
+          train_target, epochs=20, save_state=True, load_state=True)
+    test(tcn, (test_local_features, test_global_features), test_target)
 
     ##### RNN #####
     # train(rnn, rnn_optim, criterion, (train_local_features, train_global_features),
@@ -275,19 +285,17 @@ if __name__ == "__main__":
     # test(rnn, (test_local_features, test_global_features), test_target)
 
     ##### MLP #####
-    train_local_features = train_local_features.reshape((56*3, -1))
-    test_local_features = test_local_features.reshape((56*4, -1))
-    train_local_features = torch.cat(
-        (train_local_features, train_global_features), 1)
-    test_local_features = torch.cat(
-        (test_local_features, test_global_features), 1)
+    # train_local_features = train_local_features.reshape((56*3, -1))
+    # test_local_features = test_local_features.reshape((56*4, -1))
+    # train_local_features = torch.cat(
+    #     (train_local_features, train_global_features), 1)
+    # test_local_features = torch.cat(
+    #     (test_local_features, test_global_features), 1)
     # train(mlp, mlp_optim, criterion, train_local_features,
     #       train_target, epochs=50)
     # test(mlp, test_local_features, test_target)
 
     ##### MLP2 #####
-    mlp2 = DeepMLP2()
-    mlp2_optim = torch.optim.Adam(mlp2.parameters(), lr=0.001)
-    train(mlp2, mlp2_optim, criterion, train_local_features,
-          train_target, epochs=80, save_state=True)
-    test(mlp2, test_local_features, test_target)
+    # train(mlp2, mlp2_optim, criterion, train_local_features,
+    #       train_target, epochs=80, save_state=True)
+    # test(mlp2, test_local_features, test_target)
