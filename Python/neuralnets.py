@@ -80,10 +80,28 @@ class TCN(nn.Module):
     def forward(self, x):
         local_f, global_f = x
         local_f = local_f.reshape(
-            (-1, input_size, N_OF_FRAMES))  #
+            (-1, input_size, N_OF_FRAMES))
         y1 = self.tcn(local_f)
         linear_in = torch.cat((y1[:, :, -1], global_f), 1)
         return self.linear(linear_in)
+
+
+class RNN(nn.Module):
+    def __init__(self):
+        super(RNN, self).__init__()
+        self.rnn = nn.RNN(input_size, hidden_size, batch_first=True)
+        self.linear = nn.Linear(
+            hidden_size * N_OF_FRAMES + global_features_size, num_classes)
+
+    def forward(self, input):
+        output = 0
+        local_f, global_f = input
+        h_t, _ = self.rnn(local_f)
+        output = torch.zeros((local_f.size(0), num_classes))
+        for i, anim in enumerate(h_t):
+            linear_input = torch.cat((anim.reshape(-1), global_f[i]))
+            output[i] = self.linear(linear_input)
+        return output
 
 
 class DeepMLP(nn.Module):
@@ -112,7 +130,27 @@ class DeepMLP(nn.Module):
         return self.l6(out)
 
 
-def train(model, optim, criterion, features, target, epochs=10, show_plot=True, save_state=False, load_state=False):
+class DeepMLP2(nn.Module):
+    def __init__(self):
+        super(DeepMLP2, self).__init__()
+        self.l1 = nn.Linear(input_size * N_OF_FRAMES +
+                            global_features_size, 1024)
+        self.relu = nn.ReLU()
+        self.l2 = nn.Linear(1024, 1024)
+        self.l3 = nn.Linear(1024, 512)
+        self.l4 = nn.Linear(512, num_classes)
+
+    def forward(self, input):
+        out = self.l1(input)
+        out = self.relu(out)
+        out = self.l2(out)
+        out = self.relu(out)
+        out = self.l3(out)
+        out = self.relu(out)
+        return self.l4(out)
+
+
+def train(model, optim, criterion, data, target, epochs=10, show_plot=True, save_state=False, load_state=False):
     model_name = model.__class__.__name__
     if(load_state):
         model.load_state_dict(torch.load(
@@ -123,7 +161,7 @@ def train(model, optim, criterion, features, target, epochs=10, show_plot=True, 
     for e in range(epochs):
         print("Epoch: ", e)
         optim.zero_grad()
-        output = model(features)
+        output = model(data)
         loss = criterion(output, target)
         loss_values.append(loss.item())
         loss.backward()
@@ -154,16 +192,13 @@ def train(model, optim, criterion, features, target, epochs=10, show_plot=True, 
         plt.show()
 
 
-def test(model, features, target, save_results=True):
+def test(model, data, target, save_results=True):
     softmax = nn.Softmax(dim=1)
     model_name = model.__class__.__name__
 
     with torch.no_grad():
-        guess = model(features)
+        guess = model(data)
         normalized_guess = softmax(guess)
-        if save_results:
-            torch.save(guess, "data/" + model_name + "_guess.pt")
-            torch.save(target, "data/" + model_name + "_target.pt")
         # rank-1 accuracy, precision, recall and f-1 metrics
         results = metrics(normalized_guess, target)
         # rank-5 accuracy
@@ -213,6 +248,8 @@ if __name__ == "__main__":
     tcn = TCN(input_size, num_classes, [
               hidden_size, hidden_size, hidden_size, hidden_size])
     tcn_optim = torch.optim.Adam(tcn.parameters(), lr=0.001)
+    rnn = RNN()
+    rnn_optim = torch.optim.Adam(rnn.parameters(), lr=0.001)
 
     # loss function
     criterion = nn.CrossEntropyLoss()
@@ -227,15 +264,30 @@ if __name__ == "__main__":
     #       train_global_features), train_target)
     # test(gru, (test_local_features, test_global_features), test_target)
 
-    # ##### MLP #####
-    # train_mlp = train_local_features.reshape((56*3, -1))
-    # test_mlp = test_local_features.reshape((56*4, -1))
-    # train_mlp = torch.cat((train_mlp, train_global_features), 1)
-    # test_mlp = torch.cat((test_mlp, test_global_features), 1)
-    # train(mlp, mlp_optim, criterion, train_mlp, train_target, epochs=150)
-    # test(mlp, test_mlp, test_target)
-
     # ##### TCN #####
-    train(tcn, tcn_optim, criterion, (train_local_features, train_global_features),
-          train_target, epochs=20, save_state=True, load_state=False)
-    test(tcn, (test_local_features, test_global_features), test_target)
+    # train(tcn, tcn_optim, criterion, (train_local_features, train_global_features),
+    #       train_target, epochs=20, save_state=True, load_state=True)
+    # test(tcn, (test_local_features, test_global_features), test_target)
+
+    ##### RNN #####
+    # train(rnn, rnn_optim, criterion, (train_local_features, train_global_features),
+    #       train_target, epochs=20, save_state=True)
+    # test(rnn, (test_local_features, test_global_features), test_target)
+
+    ##### MLP #####
+    train_local_features = train_local_features.reshape((56*3, -1))
+    test_local_features = test_local_features.reshape((56*4, -1))
+    train_local_features = torch.cat(
+        (train_local_features, train_global_features), 1)
+    test_local_features = torch.cat(
+        (test_local_features, test_global_features), 1)
+    # train(mlp, mlp_optim, criterion, train_local_features,
+    #       train_target, epochs=50)
+    # test(mlp, test_local_features, test_target)
+
+    ##### MLP2 #####
+    mlp2 = DeepMLP2()
+    mlp2_optim = torch.optim.Adam(mlp2.parameters(), lr=0.001)
+    train(mlp2, mlp2_optim, criterion, train_local_features,
+          train_target, epochs=80, save_state=True)
+    test(mlp2, test_local_features, test_target)
