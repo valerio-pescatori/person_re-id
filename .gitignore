@@ -6,6 +6,7 @@ training**.json
 metrics.txt
 Python/**.png
 Data/
+walk plots/
 
 # data for metrics calculation
 Python/data
