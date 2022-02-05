@@ -27,10 +27,11 @@ def preprocessData(file_path):
 
 
 def loadJson(loc, glob, targ):
-    ## divido i samples tra training e testing
-    ## 3 per training 4 per testing
+    # divido i samples tra training e testing
+    # 3 per training 4 per testing
     for i in range(3):
-        t = preprocessData(str(Path.cwd().parent) + "\\Data\\data" + str(i) + ".json")
+        t = preprocessData(str(Path.cwd().parent) +
+                           "\\Data\\data" + str(i) + ".json")
         loc += t[0]
         glob += t[1]
         targ += t[2]
