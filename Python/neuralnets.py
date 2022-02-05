@@ -195,7 +195,6 @@ def train(model, optim, criterion, data, target, epochs=10, show_plot=True, save
 def test(model, data, target, save_results=True):
     softmax = nn.Softmax(dim=1)
     model_name = model.__class__.__name__
-
     with torch.no_grad():
         guess = model(data)
         normalized_guess = softmax(guess)
@@ -209,7 +208,8 @@ def test(model, data, target, save_results=True):
             "\nrank-5 accuracy \t\t\t" +
             str(rank5) + "\nrank-10 accuracy \t\t\t" + str(rank10)
         )
-        if(save_results):
+        if save_results:
+            torch.save(guess, "data/" + model_name + "_guess.pt")
             with open("data/" + model_name + "_metrics.txt", "w") as f:
                 f.write(results)
                 f.close()
@@ -275,19 +275,19 @@ if __name__ == "__main__":
     # test(rnn, (test_local_features, test_global_features), test_target)
 
     ##### MLP #####
-    train_local_features = train_local_features.reshape((56*3, -1))
-    test_local_features = test_local_features.reshape((56*4, -1))
-    train_local_features = torch.cat(
-        (train_local_features, train_global_features), 1)
-    test_local_features = torch.cat(
-        (test_local_features, test_global_features), 1)
+    # train_local_features = train_local_features.reshape((56*3, -1))
+    # test_local_features = test_local_features.reshape((56*4, -1))
+    # train_local_features = torch.cat(
+    #     (train_local_features, train_global_features), 1)
+    # test_local_features = torch.cat(
+    #     (test_local_features, test_global_features), 1)
     # train(mlp, mlp_optim, criterion, train_local_features,
     #       train_target, epochs=50)
     # test(mlp, test_local_features, test_target)
 
     ##### MLP2 #####
-    mlp2 = DeepMLP2()
-    mlp2_optim = torch.optim.Adam(mlp2.parameters(), lr=0.001)
-    train(mlp2, mlp2_optim, criterion, train_local_features,
-          train_target, epochs=80, save_state=True)
-    test(mlp2, test_local_features, test_target)
+    # mlp2 = DeepMLP2()
+    # mlp2_optim = torch.optim.Adam(mlp2.parameters(), lr=0.001)
+    # train(mlp2, mlp2_optim, criterion, train_local_features,
+    #       train_target, epochs=80, save_state=True)
+    # test(mlp2, test_local_features, test_target)

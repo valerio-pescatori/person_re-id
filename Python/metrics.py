@@ -1,5 +1,6 @@
 from sklearn.metrics import classification_report
 from sklearn.metrics import top_k_accuracy_score
+from sklearn.metrics import multilabel_confusion_matrix
 import torch
 
 
@@ -15,20 +16,4 @@ def metrics(guess, target):
 
 
 if __name__ == "__main__":
-    s = torch.nn.Softmax(dim=1)
-    criterion = torch.nn.CrossEntropyLoss()
-    guess = torch.load("data/guess.pt")
-    target = torch.load("data/target.pt")
-    guess = s(guess)
-
-    # rank-1 accuracy, precision, recall and f-1 metrics
-    results = metrics(guess, target)
-    # rank-5 accuracy
-    rank5 = topKAccuracy(guess, target, rank=5)
-    # rank-10 accuracy
-    rank10 = topKAccuracy(guess, target, rank=10)
-    results += "\nrank-5 accuracy " + str(rank5) + "\nrank-10 accuracy " + str(rank10)
-    with open("data/metrics.txt", "w") as f:
-        f.write(results)
-        f.close()
-    print(results)
+    models = {"GRU", "LSTM", "RNN", "DeepMLP", "DeepMLP2", "TCN"}
