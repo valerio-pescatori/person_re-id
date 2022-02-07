@@ -277,28 +277,28 @@ if __name__ == "__main__":
     # test(gru, (test_local_features, test_global_features), test_target)
 
     # ##### TCN #####
-    # train(tcn, tcn_optim, criterion, (train_local_features, train_global_features),
-    #       train_target, epochs=20, save_state=True, load_state=True)
-    # test(tcn, (test_local_features, test_global_features), test_target)
+    train(tcn, tcn_optim, criterion, (train_local_features, train_global_features),
+          train_target, epochs=20, save_state=True, load_state=True)
+    test(tcn, (test_local_features, test_global_features), test_target)
 
     ##### RNN #####
     # train(rnn, rnn_optim, criterion, (train_local_features, train_global_features),
     #       train_target, epochs=20, save_state=True)
     # test(rnn, (test_local_features, test_global_features), test_target)
 
-    # #### MLP #####
-    train_local_features = train_local_features.reshape((56*3, -1))
-    test_local_features = test_local_features.reshape((56*4, -1))
-    train_local_features = torch.cat(
-        (train_local_features, train_global_features), 1)
-    test_local_features = torch.cat(
-        (test_local_features, test_global_features), 1)
+    # # #### MLP #####
+    # train_local_features = train_local_features.reshape((56*3, -1))
+    # test_local_features = test_local_features.reshape((56*4, -1))
+    # train_local_features = torch.cat(
+    #     (train_local_features, train_global_features), 1)
+    # test_local_features = torch.cat(
+    #     (test_local_features, test_global_features), 1)
 
     # train(mlp, mlp_optim, criterion, train_local_features,
     #       train_target, epochs=100, save_state=True)
     # test(mlp, test_local_features, test_target)
 
-    #### MLP2 #####
-    train(mlp2, mlp2_optim, criterion, train_local_features,
-          train_target, epochs=80, save_state=True)
-    test(mlp2, test_local_features, test_target)
+    # #### MLP2 #####
+    # train(mlp2, mlp2_optim, criterion, train_local_features,
+    #       train_target, epochs=80, save_state=True)
+    # test(mlp2, test_local_features, test_target)

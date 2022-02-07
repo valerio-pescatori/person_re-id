@@ -23,9 +23,9 @@ public class PlayerController : MonoBehaviour
 
         // ###################### TEST ###########################
         int c = 0;
-        animationComponent.Play("mixamo.com" + (c == 0 ? "" : " " + c));
+        animationComponent.Play("mixamo.com 4" + (c == 0 ? "" : " " + c));
         for (int i = 0; i < 30; i++)
-            animationComponent.PlayQueued("mixamo.com" + (c == 0 ? "" : " " + c));
+            animationComponent.PlayQueued("mixamo.com 4" + (c == 0 ? "" : " " + c));
 
         // ########################################################
 
