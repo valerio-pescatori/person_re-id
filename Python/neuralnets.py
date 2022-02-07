@@ -72,7 +72,8 @@ class TCN(nn.Module):
     def __init__(self, input_size, output_size, num_channels):
         super(TCN, self).__init__()
         self.tcn = TemporalConvNet(input_size, num_channels)
-        self.linear = nn.Linear(num_channels[-1] + 1, output_size)
+        self.linear = nn.Linear(
+            num_channels[-1] + global_features_size, output_size)
         self.init_weights()
 
     def init_weights(self):
