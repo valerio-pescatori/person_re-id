@@ -1,27 +1,10 @@
-from json import loads
 import matplotlib.pyplot as plt
 import torch
 import torch.nn as nn
-
 import utils
-from metrics import metrics, topKAccuracy
 from tcn import TemporalConvNet
+from pathlib import Path
 
-# architettura nn:
-# 1  lstm layer x local mf
-# concateno l'output del lstm layer con le global mf
-# 1 dense layer che mi restituisce l'indice dell'animazione
-
-
-# input del primo layer sono le features locali quindi
-# body openness upper
-# body openness lower
-# bct upper
-# bct lower
-# bct full
-# out-toeing l
-# out-toeing r
-# hunchback
 
 # Hyper-parameters
 N_OF_FRAMES = 750
@@ -210,15 +193,19 @@ def test(model, data, target, save_results=True):
         guess = model(data)
         normalized_guess = softmax(guess)
         # rank-1 accuracy, precision, recall and f-1 metrics
-        results = metrics(normalized_guess, target)
+        results = utils.metrics(normalized_guess, target)
         # rank-5 accuracy
-        rank5 = topKAccuracy(normalized_guess, target, rank=5)
+        rank5 = utils.topKAccuracy(normalized_guess, target, rank=5)
         # rank-10 accuracy
-        rank10 = topKAccuracy(normalized_guess, target, rank=10)
+        rank10 = utils.topKAccuracy(normalized_guess, target, rank=10)
         results += (
             "\nrank-5 accuracy \t\t\t" +
             str(rank5) + "\nrank-10 accuracy \t\t\t" + str(rank10)
         )
+        # confusion matrix
+        utils.confusionMatrix(
+            target, guess, model_name)
+        # save guess tensor
         if save_results:
             torch.save(guess, "data/" + model_name + "_guess.pt")
             with open("data/" + model_name + "_metrics.txt", "w") as f:
@@ -228,17 +215,8 @@ def test(model, data, target, save_results=True):
 
 if __name__ == "__main__":
     # carico il dataset dai JSON
-    local_features, global_features, target = [], [], []
-    utils.loadJson(
-        local_features,
-        global_features,
-        target,
-    )
-
-    # converto in tensor
-    local_features = torch.tensor(local_features)
-    global_features = torch.tensor(global_features)
-    target = torch.tensor(target)
+    local_features, global_features, target = utils.loadJson(
+        str(Path.cwd().parent) + "\\Data\\")
 
     # splitto il dataset in train e test
     train_local_features, test_local_features = torch.split(
