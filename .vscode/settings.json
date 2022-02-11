@@ -40,7 +40,6 @@
     "**/*.user": true,
     "**/*.userprefs": true,
     "**/*.wav": true,
-    "**/**.png": true,
     "Assets/.vs": true,
     "Assets/Models/": true,
     "Assets/Scenes": true,
