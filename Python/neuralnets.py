@@ -211,7 +211,7 @@ def test(model, data, target, save_results=True, ablate=0):
         )
         # confusion matrix
         utils.confusionMatrix(
-            target, guess, model_name)
+            target, guess, model_name + "_ablate"+str(ablate))
         # save metrics
         if save_results:
             # torch.save(guess, "data/" + model_name +
@@ -225,7 +225,7 @@ def test(model, data, target, save_results=True, ablate=0):
 
 if __name__ == "__main__":
     start_time = time.time()
-    for ablate in range(0, 4):
+    for ablate in range(1, 4):
         # carico il dataset dai JSON
         local_features, global_features, target = utils.loadJson(
             str(Path.cwd().parent) + "\\Data\\", ablate=ablate)
