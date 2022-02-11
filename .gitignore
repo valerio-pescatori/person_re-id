@@ -4,8 +4,8 @@ imgs/
 Data/
 walk plots/
 
-# data for metrics calculation
-Python/data/model_states
+# nn model states
+Python/data/model_states/
 Python/__pycache__
 
 # This .gitignore file should be placed at the root of your Unity project directory
