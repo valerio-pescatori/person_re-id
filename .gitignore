@@ -1,15 +1,11 @@
 Assets/Models/Walks
 imgs/
-testing**.json
-training**.json
 *.pt
-metrics.txt
-Python/**.png
 Data/
 walk plots/
 
 # data for metrics calculation
-Python/data
+Python/data/model_states
 Python/__pycache__
 
 # This .gitignore file should be placed at the root of your Unity project directory
@@ -83,7 +79,3 @@ crashlytics-build.properties
 # Temporary auto-generated Android Assets
 /[Aa]ssets/[Ss]treamingAssets/aa.meta
 /[Aa]ssets/[Ss]treamingAssets/aa/*
-
-
-
-Python/data.rar
