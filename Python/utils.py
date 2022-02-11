@@ -44,24 +44,26 @@ def loadJson(path, ablate=0):
         for anim_i, anim in enumerate(data["Items"]):  # 392
             # local
             for frame_i, frame in enumerate(anim["frames"]):  # 750
-                pos = frame.pop("positions")
-                acc = frame.pop("accelerations")
-                vel = frame.pop("velocities")
-                if ablate == 1:
-                    frame.pop("hunchback")
-                    frame.pop("outToeingL")
-                    frame.pop("outToeingR")
-                if ablate == 2:
-                    pos = []
-                    acc = []
-                if ablate == 3:
-                    frame.pop("bodyOpennessU")
-                    frame.pop("bodyOpennessL")
-                    frame.pop("bctU")
-                    frame.pop("bctL")
-                    frame.pop("bctF")
-                temp = pos + acc + vel
-                temp += frame.values()
+                temp = []
+                if ablate == 0:
+                    temp += frame.pop("positions")
+                    temp += frame.pop("accelerations")
+                    temp += frame.pop("velocities")
+                    temp += frame.values()
+                elif ablate == 1:
+                    temp.append(frame["hunchback"])
+                    temp.append(frame["outToeingL"])
+                    temp.append(frame["outToeingR"])
+                elif ablate == 2:
+                    temp += frame["positions"]
+                    temp += frame["accelerations"]
+                    temp += frame["velocities"]
+                elif ablate == 3:
+                    temp.append(frame["bodyOpennessU"])
+                    temp.append(frame["bodyOpennessL"])
+                    temp.append(frame["bctU"])
+                    temp.append(frame["bctL"])
+                    temp.append(frame["bctF"])
                 if (loc.shape != torch.Size([392, 750, len(temp)])):
                     loc, _ = torch.split(
                         loc, [len(temp), 188-len(temp)], dim=2)
