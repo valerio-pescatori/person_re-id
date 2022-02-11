@@ -4,7 +4,7 @@ import torch.nn as nn
 import utils
 from tcn import TemporalConvNet
 from pathlib import Path
-
+import time
 
 # Hyper-parameters
 N_OF_FRAMES = 750
@@ -135,11 +135,13 @@ class DeepMLP2(nn.Module):
         return self.l4(out)
 
 
-def train(model, optim, criterion, data, target, epochs=10, save_plot=True, save_state=False, load_state=False):
+def train(model, optim, criterion, data, target, epochs=10, save_plot=True, save_state=False, load_state=False, ablate=0):
+    start_time = time.time()
     model_name = model.__class__.__name__
     last_epoch = 0
     if(load_state):
-        checkpoint = torch.load("model_states/"+model_name+"_state.pt")
+        checkpoint = torch.load(
+            "model_states/"+model_name+"_ablate"+str(ablate)+"_state.pt")
         model.load_state_dict(checkpoint['model_state_dict'])
         optim.load_state_dict(checkpoint['optimizer_state_dict'])
         last_epoch = checkpoint['epoch']
@@ -168,7 +170,7 @@ def train(model, optim, criterion, data, target, epochs=10, save_plot=True, save
             'model_state_dict': model.state_dict(),
             'optimizer_state_dict': optim.state_dict(),
             'loss': loss_values[-1],
-        }, "model_states/" + model_name + "_state.pt")
+        }, "model_states/" + model_name + "_ablate" + str(ablate) + "_state.pt")
     if save_plot:
         plt.clf()
         x = [_ for _ in range(last_epoch, last_epoch + epochs)]
@@ -176,17 +178,22 @@ def train(model, optim, criterion, data, target, epochs=10, save_plot=True, save
         plt.title(model_name)
         plt.xlabel("epochs")
         plt.ylabel("loss")
-        plt.savefig("data/plots/" + model_name + "_loss.png")
+        plt.savefig("data/plots/" + model_name +
+                    "_ablate" + str(ablate) + "_loss.png")
 
         plt.clf()
         plt.plot(x, accuracy_values)
         plt.title(model_name)
         plt.xlabel("epochs")
         plt.ylabel("accuracy")
-        plt.savefig("data/plots/" + model_name + "_accuracy.png")
+        plt.savefig("data/plots/" + model_name + "_ablate" +
+                    str(ablate) + "_accuracy.png")
+    print("\n--- Training completed in %s seconds ---" %
+          (time.time() - start_time))
 
 
-def test(model, data, target, save_results=True):
+def test(model, data, target, save_results=True, ablate=0):
+    start_time = time.time()
     softmax = nn.Softmax(dim=1)
     model_name = model.__class__.__name__
     with torch.no_grad():
@@ -205,79 +212,89 @@ def test(model, data, target, save_results=True):
         # confusion matrix
         utils.confusionMatrix(
             target, guess, model_name)
-        # save guess tensor
+        # save metrics
         if save_results:
-            torch.save(guess, "data/" + model_name + "_guess.pt")
-            with open("data/" + model_name + "_metrics.txt", "w") as f:
+            # torch.save(guess, "data/" + model_name +
+            #            "_ablate" + str(ablate) + "_guess.pt")
+            with open("data/" + model_name + "_ablate" + str(ablate) + "_metrics.txt", "w") as f:
                 f.write(results)
                 f.close()
+    print("\n--- Testing completed in %s seconds ---" %
+          (time.time() - start_time))
 
 
 if __name__ == "__main__":
-    # carico il dataset dai JSON
-    local_features, global_features, target = utils.loadJson(
-        str(Path.cwd().parent) + "\\Data\\")
+    start_time = time.time()
+    for ablate in range(0, 4):
+        # carico il dataset dai JSON
+        local_features, global_features, target = utils.loadJson(
+            str(Path.cwd().parent) + "\\Data\\", ablate=ablate)
+        input_size = local_features.size(2)
+        # splitto il dataset in train e test
+        train_local_features, test_local_features = torch.split(
+            local_features, [56 * 3, 56 * 4])
+        train_global_features, test_global_features = torch.split(
+            global_features, [56 * 3, 56 * 4])
+        train_target, test_target = torch.split(target, [56 * 3, 56 * 4])
 
-    # splitto il dataset in train e test
-    train_local_features, test_local_features = torch.split(
-        local_features, [56 * 3, 56 * 4]
-    )
-    train_global_features, test_global_features = torch.split(
-        global_features, [56 * 3, 56 * 4]
-    )
-    train_target, test_target = torch.split(target, [56 * 3, 56 * 4])
+        # istanzio i modelli
+        lstm = LSTM()
+        lstm_optim = torch.optim.Adam(lstm.parameters(), lr=0.001)
+        gru = GRU()
+        gru_optim = torch.optim.Adam(gru.parameters(), lr=0.001)
+        mlp = DeepMLP()
+        mlp_optim = torch.optim.Adam(mlp.parameters(), lr=0.001)
+        mlp2 = DeepMLP2()
+        mlp2_optim = torch.optim.Adam(mlp2.parameters(), lr=0.001)
+        tcn = TCN(input_size, num_classes, [
+            hidden_size, hidden_size, hidden_size, hidden_size])
+        tcn_optim = torch.optim.Adam(tcn.parameters(), lr=0.001)
+        rnn = RNN()
+        rnn_optim = torch.optim.Adam(rnn.parameters(), lr=0.001)
 
-    # istanzio i modelli
-    lstm = LSTM()
-    lstm_optim = torch.optim.Adam(lstm.parameters(), lr=0.001)
-    gru = GRU()
-    gru_optim = torch.optim.Adam(gru.parameters(), lr=0.001)
-    mlp = DeepMLP()
-    mlp_optim = torch.optim.Adam(mlp.parameters(), lr=0.001)
-    mlp2 = DeepMLP2()
-    mlp2_optim = torch.optim.Adam(mlp2.parameters(), lr=0.001)
-    tcn = TCN(input_size, num_classes, [
-              hidden_size, hidden_size, hidden_size, hidden_size])
-    tcn_optim = torch.optim.Adam(tcn.parameters(), lr=0.001)
-    rnn = RNN()
-    rnn_optim = torch.optim.Adam(rnn.parameters(), lr=0.001)
+        # loss function
+        criterion = nn.CrossEntropyLoss()
 
-    # loss function
-    criterion = nn.CrossEntropyLoss()
+        ##### LSTM #####
+        train(lstm, lstm_optim, criterion,
+              (train_local_features, train_global_features), train_target, ablate=ablate)
+        test(lstm, (test_local_features, test_global_features),
+             test_target, ablate=ablate)
 
-    # ##### LSTM #####
-    # train(lstm, lstm_optim, criterion,
-    #       (train_local_features, train_global_features), train_target)
-    # test(lstm, (test_local_features, test_global_features), test_target)
+        ##### GRU #####
+        train(gru, gru_optim, criterion, (train_local_features,
+                                          train_global_features), train_target, ablate=ablate)
+        test(gru, (test_local_features, test_global_features),
+             test_target, ablate=ablate)
 
-    # ##### GRU #####
-    # train(gru, gru_optim, criterion, (train_local_features,
-    #       train_global_features), train_target)
-    # test(gru, (test_local_features, test_global_features), test_target)
+        ##### TCN #####
+        train(tcn, tcn_optim, criterion, (train_local_features, train_global_features),
+              train_target, epochs=60, ablate=ablate)
+        test(tcn, (test_local_features, test_global_features),
+             test_target, ablate=ablate)
 
-    # ##### TCN #####
-    train(tcn, tcn_optim, criterion, (train_local_features, train_global_features),
-          train_target, epochs=20, save_state=True, load_state=True)
-    test(tcn, (test_local_features, test_global_features), test_target)
+        ##### RNN #####
+        train(rnn, rnn_optim, criterion, (train_local_features, train_global_features),
+              train_target, epochs=20, ablate=ablate)
+        test(rnn, (test_local_features, test_global_features),
+             test_target, ablate=ablate)
 
-    ##### RNN #####
-    # train(rnn, rnn_optim, criterion, (train_local_features, train_global_features),
-    #       train_target, epochs=20, save_state=True)
-    # test(rnn, (test_local_features, test_global_features), test_target)
+        #### MLP #####
+        # flattening della sequenza per i MLP
+        train_local_features = train_local_features.reshape((56*3, -1))
+        test_local_features = test_local_features.reshape((56*4, -1))
+        train_local_features = torch.cat(
+            (train_local_features, train_global_features), 1)
+        test_local_features = torch.cat(
+            (test_local_features, test_global_features), 1)
 
-    # # #### MLP #####
-    # train_local_features = train_local_features.reshape((56*3, -1))
-    # test_local_features = test_local_features.reshape((56*4, -1))
-    # train_local_features = torch.cat(
-    #     (train_local_features, train_global_features), 1)
-    # test_local_features = torch.cat(
-    #     (test_local_features, test_global_features), 1)
+        train(mlp, mlp_optim, criterion, train_local_features,
+              train_target, epochs=100, ablate=ablate)
+        test(mlp, test_local_features, test_target, ablate=ablate)
 
-    # train(mlp, mlp_optim, criterion, train_local_features,
-    #       train_target, epochs=100, save_state=True)
-    # test(mlp, test_local_features, test_target)
-
-    # #### MLP2 #####
-    # train(mlp2, mlp2_optim, criterion, train_local_features,
-    #       train_target, epochs=80, save_state=True)
-    # test(mlp2, test_local_features, test_target)
+        #### MLP2 #####
+        train(mlp2, mlp2_optim, criterion, train_local_features,
+              train_target, epochs=80, ablate=ablate)
+        test(mlp2, test_local_features, test_target, ablate=ablate)
+    print("\n--- Total time elapsed: %s seconds ---" %
+          (time.time() - start_time))
