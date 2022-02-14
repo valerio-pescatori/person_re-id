@@ -57,6 +57,5 @@
     "temp/": true,
     "Temp/": true,
     "UserSettings/": true
-  },
-  "python.formatting.provider": "autopep8"
+  }
 }

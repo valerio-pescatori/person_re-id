@@ -1,3 +1,5 @@
+from glob import glob
+from threading import local
 import matplotlib.pyplot as plt
 import torch
 import torch.nn as nn
@@ -223,19 +225,46 @@ def test(model, data, target, save_results=True, ablate=0):
           (time.time() - start_time))
 
 
-if __name__ == "__main__":
-    start_time = time.time()
-    for ablate in range(1, 4):
+def split40_60(t):
+    return torch.split(t, [num_classes * 3, num_classes * 4])
+
+
+def ablationTest(abl_from=0, abl_to=1, split=0):
+    for ablate in range(abl_from, abl_to):
         # carico il dataset dai JSON
         local_features, global_features, target = utils.loadJson(
             str(Path.cwd().parent) + "\\Data\\", ablate=ablate)
         input_size = local_features.size(2)
-        # splitto il dataset in train e test
-        train_local_features, test_local_features = torch.split(
-            local_features, [56 * 3, 56 * 4])
-        train_global_features, test_global_features = torch.split(
-            global_features, [56 * 3, 56 * 4])
-        train_target, test_target = torch.split(target, [56 * 3, 56 * 4])
+
+        if split == 0:
+            # splitto il dataset in train e test
+            train_local_features, test_local_features = split40_60(
+                local_features)
+            train_global_features, test_global_features = split40_60(
+                global_features)
+            train_target, test_target = split40_60(target)
+        elif split == 1:
+            test_ids = torch.multinomial(target, 33)
+            train_local_features = torch.empty([23*7, 750, 188])
+            test_local_features = torch.empty([33*7, 750, 188])
+            train_global_features = torch.empty([23*7, 1])
+            test_global_features = torch.empty([33*7, 1])
+            train_target = torch.empty([23*7])
+            test_target = torch.empty([33*7])
+            train_i, test_i = 0, 0
+            for i, el in enumerate(target):
+                if el.item() in test_ids:
+                    # test set
+                    test_local_features[test_i] = local_features[i]
+                    test_global_features[test_i] = global_features[i]
+                    test_target[test_i] = el
+                    test_i += 1
+                else:
+                    # train set
+                    train_local_features[train_i] = local_features[i]
+                    train_global_features[train_i] = global_features[i]
+                    train_target[train_i] = el
+                    train_i += 1
 
         # istanzio i modelli
         lstm = LSTM()
@@ -268,10 +297,10 @@ if __name__ == "__main__":
              test_target, ablate=ablate)
 
         ##### TCN #####
-        train(tcn, tcn_optim, criterion, (train_local_features, train_global_features),
-              train_target, epochs=60, ablate=ablate)
-        test(tcn, (test_local_features, test_global_features),
-             test_target, ablate=ablate)
+        # train(tcn, tcn_optim, criterion, (train_local_features, train_global_features),
+        #       train_target, epochs=60, ablate=ablate)
+        # test(tcn, (test_local_features, test_global_features),
+        #      test_target, ablate=ablate)
 
         ##### RNN #####
         train(rnn, rnn_optim, criterion, (train_local_features, train_global_features),
@@ -296,5 +325,10 @@ if __name__ == "__main__":
         train(mlp2, mlp2_optim, criterion, train_local_features,
               train_target, epochs=80, ablate=ablate)
         test(mlp2, test_local_features, test_target, ablate=ablate)
+
+
+if __name__ == "__main__":
+    start_time = time.time()
+    ablationTest(split=1)
     print("\n--- Total time elapsed: %s seconds ---" %
           (time.time() - start_time))
