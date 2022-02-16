@@ -225,10 +225,6 @@ def test(model, data, target, save_results=True, ablate=0):
           (time.time() - start_time))
 
 
-def split40_60(t):
-    return torch.split(t, [num_classes * 3, num_classes * 4])
-
-
 def ablationTest(abl_from=0, abl_to=1, split=0):
     for ablate in range(abl_from, abl_to):
         # carico il dataset dai JSON
@@ -236,24 +232,25 @@ def ablationTest(abl_from=0, abl_to=1, split=0):
             str(Path.cwd().parent) + "\\Data\\", ablate=ablate)
         input_size = local_features.size(2)
 
+        # splitto il dataset in train e test
         if split == 0:
-            # splitto il dataset in train e test
-            train_local_features, test_local_features = split40_60(
-                local_features)
-            train_global_features, test_global_features = split40_60(
-                global_features)
-            train_target, test_target = split40_60(target)
+            train_local_features, test_local_features = torch.split(
+                local_features, [num_classes * 3, num_classes * 4])
+            train_global_features, test_global_features = torch.split(
+                global_features, [num_classes * 3, num_classes * 4])
+            train_target, test_target = torch.split(
+                target, [num_classes * 3, num_classes * 4])
         elif split == 1:
-            test_ids = torch.multinomial(target, 33)
+            test_ids = torch.randperm(num_classes)[:33]
             train_local_features = torch.empty([23*7, 750, 188])
             test_local_features = torch.empty([33*7, 750, 188])
             train_global_features = torch.empty([23*7, 1])
             test_global_features = torch.empty([33*7, 1])
-            train_target = torch.empty([23*7])
-            test_target = torch.empty([33*7])
+            train_target = torch.empty([23*7], dtype=torch.int64)
+            test_target = torch.empty([33*7], dtype=torch.int64)
             train_i, test_i = 0, 0
             for i, el in enumerate(target):
-                if el.item() in test_ids:
+                if el in test_ids:
                     # test set
                     test_local_features[test_i] = local_features[i]
                     test_global_features[test_i] = global_features[i]
@@ -284,7 +281,7 @@ def ablationTest(abl_from=0, abl_to=1, split=0):
         # loss function
         criterion = nn.CrossEntropyLoss()
 
-        ##### LSTM #####
+        #### LSTM #####
         train(lstm, lstm_optim, criterion,
               (train_local_features, train_global_features), train_target, ablate=ablate)
         test(lstm, (test_local_features, test_global_features),
@@ -297,10 +294,10 @@ def ablationTest(abl_from=0, abl_to=1, split=0):
              test_target, ablate=ablate)
 
         ##### TCN #####
-        # train(tcn, tcn_optim, criterion, (train_local_features, train_global_features),
-        #       train_target, epochs=60, ablate=ablate)
-        # test(tcn, (test_local_features, test_global_features),
-        #      test_target, ablate=ablate)
+        train(tcn, tcn_optim, criterion, (train_local_features, train_global_features),
+              train_target, epochs=60, ablate=ablate)
+        test(tcn, (test_local_features, test_global_features),
+             test_target, ablate=ablate)
 
         ##### RNN #####
         train(rnn, rnn_optim, criterion, (train_local_features, train_global_features),
@@ -310,8 +307,10 @@ def ablationTest(abl_from=0, abl_to=1, split=0):
 
         #### MLP #####
         # flattening della sequenza per i MLP
-        train_local_features = train_local_features.reshape((56*3, -1))
-        test_local_features = test_local_features.reshape((56*4, -1))
+        train_local_features = train_local_features.reshape(
+            (train_local_features.size(0), -1))
+        test_local_features = test_local_features.reshape(
+            (test_local_features.size(0), -1))
         train_local_features = torch.cat(
             (train_local_features, train_global_features), 1)
         test_local_features = torch.cat(

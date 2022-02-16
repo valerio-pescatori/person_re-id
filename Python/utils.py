@@ -1,5 +1,5 @@
 import json
-from sklearn.metrics import classification_report, top_k_accuracy_score
+from sklearn.metrics import classification_report
 import torch
 import seaborn as sn
 import matplotlib.pyplot as plt
@@ -8,7 +8,13 @@ from pathlib import Path
 
 
 def topKAccuracy(guess, target, rank=1):
-    return round(top_k_accuracy_score(target, guess, k=rank, normalize=True), 2)
+    sorted_guess, indices = torch.sort(guess)
+    hits = 0.0
+    for i in range(len(sorted_guess)):
+        for k in range(rank):
+            if target[i] == indices[i][k]:
+                hits += 1
+    return round((hits/len(guess)) * 100, 2)
 
 
 def metrics(guess, target):
@@ -75,11 +81,3 @@ def loadJson(path, ablate=0):
             index += 1
     print("\n--- JSON loaded in %s seconds ---" % (time.time() - start_time))
     return loc, glob, targ
-
-
-if __name__ == "__main__":
-    loc, glob, targ = loadJson(
-        str(Path.cwd().parent) + "\\Data\\")
-    print(loc[0])
-    print(glob[0])
-    print(targ[0])

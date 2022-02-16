@@ -488,7 +488,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 963194225}
-  m_LocalRotation: {x: 0.12411501, y: 0.0008056687, z: -0.00010077482, w: 0.99226755}
+  m_LocalRotation: {x: 0.12411501, y: 0.00080567726, z: -0.000100775884, w: 0.99226755}
   m_LocalPosition: {x: -0.1, y: 5.1, z: -7.4}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
@@ -841,6 +841,7 @@ Animation:
   serializedVersion: 3
   m_Animation: {fileID: 0}
   m_Animations:
+  - {fileID: 7400000, guid: 5c93101b3684e0442894d32b91a3c336, type: 2}
   - {fileID: 7400000, guid: b8e7faa7f9b4eab4ab81a530da1ca617, type: 2}
   - {fileID: 7400000, guid: cd929d7548dae2648a094777edca90f5, type: 2}
   - {fileID: 7400000, guid: beb8f9ce35559d946b75b1de5b3dfe5a, type: 2}
@@ -896,7 +897,6 @@ Animation:
   - {fileID: 7400000, guid: 6dbd4592c6d66084fa5b9a9e953015cf, type: 2}
   - {fileID: 7400000, guid: 0cd11c941636c8c4f83df123ee05a1ad, type: 2}
   - {fileID: 7400000, guid: 4fa098db34fcf254fb621d76e451548a, type: 2}
-  - {fileID: 7400000, guid: 5c93101b3684e0442894d32b91a3c336, type: 2}
   m_WrapMode: 0
   m_PlayAutomatically: 1
   m_AnimatePhysics: 0
@@ -1061,7 +1061,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1291279768}
-  m_LocalRotation: {x: 0.12411501, y: 0.0008056687, z: -0.00010077482, w: 0.99226755}
+  m_LocalRotation: {x: 0.12411501, y: 0.00080567726, z: -0.000100775884, w: 0.99226755}
   m_LocalPosition: {x: -0.1, y: 5.1, z: -7.4}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:

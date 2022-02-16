@@ -60,25 +60,25 @@ public class ReId : MonoBehaviour
         // se l'Animation component non sta riproducendo alcuna animazione
         if (!anim.isPlaying)
         {
-            // // serializzo e salvo in json
-            // if (SPLIT_JSON)
-            //     SplitAndSave();
-            // else
-            //     File.WriteAllText(JSON_PATH, JsonHelper.ToJson<JAnimation>(jAnims));
+            // serializzo e salvo in json
+            if (SPLIT_JSON)
+                SplitAndSave();
+            else
+                File.WriteAllText(JSON_PATH, JsonHelper.ToJson<JAnimation>(jAnims));
             //stop play mode
             UnityEditor.EditorApplication.ExitPlaymode();
         }
-        var animIndex = currAnim % numClasses;
+        var animId = currAnim % numClasses;
         // se in questo frame sto eseguendo un'animazione diversa da quella precedente
-        if (!anim.IsPlaying("mixamo.com" + (animIndex == 0 ? "" : " " + animIndex)))
+        if (!anim.IsPlaying("mixamo.com" + (animId == 0 ? "" : " " + animId)))
         {
             // chiamo il metodo calculateSteps() dell'animazione appena terminata
             jAnims[currAnim].CalculateSteps(PLOT);
             Debug.Log(jAnims[currAnim].frames.Count);
-
+            
             // e creo la nuova animazione
             if (currAnim < (numClasses * nSamples) - 1)
-                jAnims[++currAnim] = new JAnimation(characterHeight / 110, animIndex);
+                jAnims[++currAnim] = new JAnimation(characterHeight / 110, (animId+1)%numClasses);
         }
 
         // feature extraction
