@@ -122,8 +122,6 @@ public class ReId : MonoBehaviour
     }
     private Vector3[] Positions()
     {
-        // uso 5 joints: testa, manodx, manosx, piededx, piedesx
-        // var joints5 = new GameObject[] { joints[15], joints[4], joints[7], joints[11], joints[14] };
         var pos = new Vector3[joints.Length];
         for (var i = 0; i < joints.Length; i++)
             pos[i] = joints[i].transform.position;
@@ -265,9 +263,14 @@ public class ReId : MonoBehaviour
         // first sphere
         Gizmos.color = Color.magenta;
         Gizmos.DrawSphere(joints[15].transform.position, radius);
+        // spine2 to spine1
+        DrawLineAndSphere(joints[1].transform.position, joints[18].transform.position, new Color(1, 0.41f, 0.2f, 1));
+        // spine1 to spine
+        DrawLineAndSphere(joints[18].transform.position, joints[19].transform.position, new Color(1, 0.56f, 0.4f, 1));
+        // spine to hip
+        DrawLineAndSphere(joints[19].transform.position, joints[8].transform.position, new Color(1, 0.61f, 0.2f, 1));
         // neck to head
         DrawLineAndSphere(joints[15].transform.position, joints[0].transform.position, Color.magenta);
-        // neck to chest
         // hip middle to l hip 
         DrawLineAndSphere(joints[8].transform.position, joints[12].transform.position, Color.blue);
         // l hip to l knee
@@ -284,6 +287,7 @@ public class ReId : MonoBehaviour
         DrawLineAndSphere(joints[10].transform.position, joints[11].transform.position, Color.cyan);
         // r ankle to r foot
         DrawLineAndSphere(joints[11].transform.position, joints[17].transform.position, Color.cyan);
+        // neck to chest
         DrawLineAndSphere(joints[0].transform.position, joints[1].transform.position, Color.red);
         // chest to  shoulder
         DrawLineAndSphere(joints[1].transform.position, joints[5].transform.position, Color.green);
@@ -297,12 +301,53 @@ public class ReId : MonoBehaviour
         DrawLineAndSphere(joints[2].transform.position, joints[3].transform.position, Color.yellow);
         // r elbow to r wrist
         DrawLineAndSphere(joints[3].transform.position, joints[4].transform.position, Color.yellow);
-        // spine2 to spine1
-        DrawLineAndSphere(joints[1].transform.position, joints[18].transform.position, new Color(1, 0.41f, 0.2f, 1));
-        // spine1 to spine
-        DrawLineAndSphere(joints[18].transform.position, joints[19].transform.position, new Color(1, 0.56f, 0.4f, 1));
-        // spine to hip
-        DrawLineAndSphere(joints[19].transform.position, joints[8].transform.position, new Color(1, 0.61f, 0.2f, 1));
+
+        Gizmos.color = Color.black;
+        // step avg
+        // Gizmos.DrawSphere(joints[11].transform.position, radius);
+        // Gizmos.DrawSphere(joints[14].transform.position,radius);
+        // Gizmos.DrawLine(joints[11].transform.position, joints[14].transform.position);
+        // ot
+        // var point3r = new Vector3(joints[11].transform.position.x - 2, joints[11].transform.position.y, joints[11].transform.position.z);
+        // var point3l = new Vector3(joints[14].transform.position.x + 2, joints[14].transform.position.y, joints[14].transform.position.z);
+        // DrawLineAndSphere(joints[11].transform.position, joints[17].transform.position, Color.black);
+        // DrawLineAndSphere(joints[17].transform.position, point3r, Color.black);
+        // DrawLineAndSphere(point3r, joints[11].transform.position, Color.black);
+        // hb
+        // DrawLineAndSphere(joints[8].transform.position, joints[18].transform.position, Color.black);
+        // DrawLineAndSphere(joints[18].transform.position, joints[0].transform.position, Color.black);
+        // DrawLineAndSphere(joints[0].transform.position, joints[8].transform.position, Color.black);
+
+        // //bo 1, 8, 6, 3
+        // DrawLineAndSphere(joints[1].transform.position, joints[8].transform.position, Color.black);
+        // DrawLineAndSphere(joints[8].transform.position, joints[1].transform.position, Color.black);
+        // DrawLineAndSphere(joints[6].transform.position, joints[3].transform.position, Color.black);
+        // DrawLineAndSphere(joints[3].transform.position, joints[6].transform.position, Color.black);
+
+        
+        // // 13 10
+        // Vector3 ankleLeft = joints[11].transform.position;
+        // Vector3 ankleRight = joints[14].transform.position;
+        // Vector3 anklesAvg = Vector3.zero;
+        // for (int i = 0; i < 3; i++)
+        // {
+        //     anklesAvg[i] = (ankleLeft[i] + ankleRight[i]) / 2;
+        // }
+        // DrawLineAndSphere(joints[8].transform.position, anklesAvg, Color.black);
+        // DrawLineAndSphere(anklesAvg, joints[8].transform.position, Color.black);
+        // DrawLineAndSphere(joints[13].transform.position, joints[10].transform.position, Color.black);
+        // DrawLineAndSphere(joints[10].transform.position, joints[13].transform.position, Color.black);
+
+        //bct
+        // 4 7 1
+        // // 8 11 14
+        // DrawLineAndSphere(joints[4].transform.position, joints[7].transform.position, Color.black);
+        // DrawLineAndSphere(joints[7].transform.position, joints[1].transform.position, Color.black);
+        // DrawLineAndSphere(joints[1].transform.position, joints[4].transform.position, Color.black);
+
+        // DrawLineAndSphere(joints[8].transform.position, joints[11].transform.position, Color.black);
+        // DrawLineAndSphere(joints[11].transform.position, joints[14].transform.position, Color.black);
+        // DrawLineAndSphere(joints[14].transform.position, joints[8].transform.position, Color.black);
     }
     private void DrawLineAndSphere(Vector3 from, Vector3 to, Color color, float radius = 0.06f)
     {
