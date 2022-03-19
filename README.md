@@ -1,4 +1,4 @@
-# person_re-id
+# Person Re-ID
 Progetto svolto durante il periodo di tirocinio per la tesi di Laurea Triennale in Informatica.
 
 Di seguito è elencato il contenuto delle cartelle principali:
