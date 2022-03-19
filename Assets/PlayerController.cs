@@ -3,9 +3,9 @@ using System;
 using System.Collections.Generic;
 public class PlayerController : MonoBehaviour
 {
-    public const int NUMBER_OF_FRAMES = 5000;
+    public const int NUMBER_OF_FRAMES = 750;
     Animation animationComponent;
-    public const int targetFrameRate = 60;  // setto il target 3 fps in più per evitare che scenda sotto 
+    public const int targetFrameRate = 63;  // setto il target 3 fps in più per evitare che scenda sotto 
 
     // fps limitator    
     void Awake()
@@ -25,11 +25,11 @@ public class PlayerController : MonoBehaviour
         // 16 --> ubriaco
         // 29 --> stealth (?)
         // 39 --> claudicante
-        // 43 --> anziano
-        animationComponent.Play("mixamo.com 5");
-        var anims = new int[6]{5, 13, 16, 29, 39, 43};
-        foreach (int element in anims)
-                animationComponent.PlayQueued("mixamo.com " + element);
+        // // 43 --> anziano
+        // animationComponent.Play("mixamo.com 5");
+        // var anims = new int[6]{5, 13, 16, 29, 39, 43};
+        // foreach (int element in anims)
+        //         animationComponent.PlayQueued("mixamo.com " + element);
 
 
         // // tests
@@ -41,17 +41,16 @@ public class PlayerController : MonoBehaviour
         //     animationComponent.PlayQueued(anim);
 
 
-        // // la prima animazione va messa in play manualmente
-        // animationComponent.Play("mixamo.com");
+        // la prima animazione va messa in play manualmente
+        animationComponent.Play("mixamo.com");
 
+        // costruisco la coda di riproduzione
+        var playQueue = GeneratePlayQueue();
 
-        // // costruisco la coda di riproduzione
-        // var playQueue = GeneratePlayQueue();
-
-        // // riproduco ogni animazione nella coda per 750 frames
-        // foreach (var anim in playQueue)
-        //     for (int i = 0; i < (int)Math.Ceiling(NUMBER_OF_FRAMES / (animationComponent[anim].length * (targetFrameRate - 3))); i++)
-        //         animationComponent.PlayQueued(anim);
+        // riproduco ogni animazione nella coda per 750 frames
+        foreach (var anim in playQueue)
+            for (int i = 0; i < (int)Math.Ceiling(NUMBER_OF_FRAMES / (animationComponent[anim].length * (targetFrameRate - 3))); i++)
+                animationComponent.PlayQueued(anim);
     }
 
     private Queue<String> GeneratePlayQueue()
