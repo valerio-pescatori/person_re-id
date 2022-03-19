@@ -1,8 +1,5 @@
 # Person Re-ID
 Progetto svolto durante il periodo di tirocinio per la tesi di Laurea Triennale in Informatica.
 
-Di seguito è elencato il contenuto delle cartelle principali:
-
-1. __Assets__: Contiene tutti i modelli delle animazioni, del character utilizzato e della scena Unity oltre che ai file degli script in C#
-2. __Data__: Contiene i file JSON nei quali sono immagazzinati i dati delle features estratte dalle animazioni
-3. __Python__: Contiene gli script in python e i file con i risultati degli esperimenti eseguiti
+Per eseguire gli esperimenti è necessario generare il dataset, è sufficiente aprire il progetto in Unity e premere il tasto Play.
+In automatico le animazioni vengono messe in play e al termine dell'esecuzione i dati verranno splittati e salvati in 3 files JSON contenuti nella cartella Data/.
