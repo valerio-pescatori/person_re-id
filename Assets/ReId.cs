@@ -37,8 +37,8 @@ public class ReId : MonoBehaviour
     private float characterHeight;
     private Vector3[] lastVel;
     private Vector3[] lastPos;
-    public const bool PLOT = false;
-    public static bool SPLIT_JSON = true;
+    // if WALK_PLOT is true, plot of distance between ankles will be plotted for each animation
+    public const bool WALK_PLOT = false;
     public const int nSamples = 7;
     public const int numClasses = 56;
     public const string JSON_PATH = @".\Data\data.json";
@@ -61,10 +61,7 @@ public class ReId : MonoBehaviour
         if (!anim.isPlaying)
         {
             // serializzo e salvo in json
-            if (SPLIT_JSON)
-                SplitAndSave();
-            else
-                File.WriteAllText(JSON_PATH, JsonHelper.ToJson<JAnimation>(jAnims));
+            SplitAndSave();
             //stop play mode
             UnityEditor.EditorApplication.ExitPlaymode();
         }
@@ -73,7 +70,7 @@ public class ReId : MonoBehaviour
         if (!anim.IsPlaying("mixamo.com" + (animId == 0 ? "" : " " + animId)))
         {
             // chiamo il metodo calculateSteps() dell'animazione appena terminata
-            jAnims[currAnim].CalculateSteps(PLOT);
+            jAnims[currAnim].CalculateSteps(WALK_PLOT);
             Debug.Log(jAnims[currAnim].frames.Count);
             
             // e creo la nuova animazione
