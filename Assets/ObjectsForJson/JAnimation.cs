@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
 using UnityEngine;
+using Microsoft.Win32;
 
 namespace ObjectsForJson
 {
@@ -14,8 +15,7 @@ namespace ObjectsForJson
         public int index;
         public List<JFrame> frames;
         private float lambda;
-        public const string pyScriptPath = @"Python\plot.py";
-        public const string pyExePath = @"C:\Users\Valerio\AppData\Local\Programs\Python\Python39\pythonw.exe";
+        public const string pyScriptPath = @"Python\walkplot.py";
 
         public JAnimation(float lambda, int index)
         {
@@ -78,13 +78,25 @@ namespace ObjectsForJson
             string arg2 = frames.Count.ToString();
 
             ProcessStartInfo start = new ProcessStartInfo();
-            start.FileName = pyExePath;
+            start.FileName = FindPythonPath();
             start.Arguments = $" -i \"{pyScriptPath}\" \"{arg1}\" \"{arg2}\" \"{index}\"";
             start.UseShellExecute = true;
             start.CreateNoWindow = true;
             using (Process process = Process.Start(start))
             {
             }
+        }
+
+        private static string FindPythonPath(){
+            object pyPath = Registry.GetValue("HKEY_CURRENT_USER\\SOFTWARE\\Python\\PythonCore\\3.9\\InstallPath", "ExecutablePath", "err");
+            if(pyPath != null){
+                string s = pyPath.ToString();
+                if (s == "err")
+                    throw new PythonExeNotFoundException();
+                return s;
+            }
+            else
+               throw new PythonExeNotFoundException("Registry key doesn't exist.");
         }
     }
 }

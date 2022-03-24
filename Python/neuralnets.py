@@ -1,12 +1,13 @@
-from glob import glob
-from threading import local
+import time
+from pathlib import Path
+import argparse
+import sys
 import matplotlib.pyplot as plt
 import torch
 import torch.nn as nn
+
 import utils
 from tcn import TemporalConvNet
-from pathlib import Path
-import time
 
 # Hyper-parameters
 N_OF_FRAMES = 750
@@ -137,7 +138,7 @@ class DeepMLP2(nn.Module):
         return self.l4(out)
 
 
-def train(model, optim, criterion, data, target, epochs=10, save_plot=True, save_state=False, load_state=False, ablate=0):
+def train(model, optim, criterion, data, target, epochs=10, save_state=False, load_state=False, ablate=0):
     start_time = time.time()
     model_name = model.__class__.__name__
     last_epoch = 0
@@ -173,28 +174,27 @@ def train(model, optim, criterion, data, target, epochs=10, save_plot=True, save
             'optimizer_state_dict': optim.state_dict(),
             'loss': loss_values[-1],
         }, "model_states/" + model_name + "_ablate" + str(ablate) + "_state.pt")
-    if save_plot:
-        plt.clf()
-        x = [_ for _ in range(last_epoch, last_epoch + epochs)]
-        plt.plot(x, loss_values)
-        plt.title(model_name)
-        plt.xlabel("epochs")
-        plt.ylabel("loss")
-        plt.savefig("data/plots/" + model_name +
-                    "_ablate" + str(ablate) + "_loss.png")
+    plt.clf()
+    x = [_ for _ in range(last_epoch, last_epoch + epochs)]
+    plt.plot(x, loss_values)
+    plt.title(model_name)
+    plt.xlabel("epochs")
+    plt.ylabel("loss")
+    plt.savefig("data/plots/" + model_name +
+                "_ablate" + str(ablate) + "_loss.png")
 
-        plt.clf()
-        plt.plot(x, accuracy_values)
-        plt.title(model_name)
-        plt.xlabel("epochs")
-        plt.ylabel("accuracy")
-        plt.savefig("data/plots/" + model_name + "_ablate" +
-                    str(ablate) + "_accuracy.png")
+    plt.clf()
+    plt.plot(x, accuracy_values)
+    plt.title(model_name)
+    plt.xlabel("epochs")
+    plt.ylabel("accuracy")
+    plt.savefig("data/plots/" + model_name + "_ablate" +
+                str(ablate) + "_accuracy.png")
     print("\n--- Training completed in %s seconds ---" %
           (time.time() - start_time))
 
 
-def test(model, data, target, save_results=True, ablate=0):
+def test(model, data, target, ablate=0):
     start_time = time.time()
     softmax = nn.Softmax(dim=1)
     model_name = model.__class__.__name__
@@ -215,17 +215,17 @@ def test(model, data, target, save_results=True, ablate=0):
         utils.confusionMatrix(
             target, guess, model_name + "_ablate"+str(ablate))
         # save metrics
-        if save_results:
-            # torch.save(guess, "data/" + model_name +
-            #            "_ablate" + str(ablate) + "_guess.pt")
-            with open("data/" + model_name + "_ablate" + str(ablate) + "_metrics.txt", "w") as f:
-                f.write(results)
-                f.close()
+        with open("data/" + model_name + "_ablate" + str(ablate) + "_metrics.txt", "w") as f:
+            f.write(results)
+            f.close()
     print("\n--- Testing completed in %s seconds ---" %
           (time.time() - start_time))
 
 
-def ablationTest(abl_from=0, abl_to=1, split=0):
+def runTests(abl, save_states, load_states):
+    abl_from, abl_to = 0, 1
+    if (abl):
+        abl_to = 4
     for ablate in range(abl_from, abl_to):
         # carico il dataset dai JSON
         local_features, global_features, target = utils.loadJson(
@@ -233,35 +233,12 @@ def ablationTest(abl_from=0, abl_to=1, split=0):
         input_size = local_features.size(2)
 
         # splitto il dataset in train e test
-        if split == 0:
-            train_local_features, test_local_features = torch.split(
-                local_features, [num_classes * 3, num_classes * 4])
-            train_global_features, test_global_features = torch.split(
-                global_features, [num_classes * 3, num_classes * 4])
-            train_target, test_target = torch.split(
-                target, [num_classes * 3, num_classes * 4])
-        elif split == 1:
-            test_ids = torch.randperm(num_classes)[:33]
-            train_local_features = torch.empty([23*7, 750, 188])
-            test_local_features = torch.empty([33*7, 750, 188])
-            train_global_features = torch.empty([23*7, 1])
-            test_global_features = torch.empty([33*7, 1])
-            train_target = torch.empty([23*7], dtype=torch.int64)
-            test_target = torch.empty([33*7], dtype=torch.int64)
-            train_i, test_i = 0, 0
-            for i, el in enumerate(target):
-                if el in test_ids:
-                    # test set
-                    test_local_features[test_i] = local_features[i]
-                    test_global_features[test_i] = global_features[i]
-                    test_target[test_i] = el
-                    test_i += 1
-                else:
-                    # train set
-                    train_local_features[train_i] = local_features[i]
-                    train_global_features[train_i] = global_features[i]
-                    train_target[train_i] = el
-                    train_i += 1
+        train_local_features, test_local_features = torch.split(
+            local_features, [num_classes * 3, num_classes * 4])
+        train_global_features, test_global_features = torch.split(
+            global_features, [num_classes * 3, num_classes * 4])
+        train_target, test_target = torch.split(
+            target, [num_classes * 3, num_classes * 4])
 
         # istanzio i modelli
         lstm = LSTM()
@@ -283,25 +260,25 @@ def ablationTest(abl_from=0, abl_to=1, split=0):
 
         #### LSTM #####
         train(lstm, lstm_optim, criterion,
-              (train_local_features, train_global_features), train_target, ablate=ablate)
+              (train_local_features, train_global_features), train_target, ablate=ablate, save_state=save_states, load_state=load_states)
         test(lstm, (test_local_features, test_global_features),
              test_target, ablate=ablate)
 
         ##### GRU #####
         train(gru, gru_optim, criterion, (train_local_features,
-                                          train_global_features), train_target, ablate=ablate)
+                                          train_global_features), train_target, ablate=ablate, save_state=save_states, load_state=load_states)
         test(gru, (test_local_features, test_global_features),
              test_target, ablate=ablate)
 
         ##### TCN #####
         train(tcn, tcn_optim, criterion, (train_local_features, train_global_features),
-              train_target, epochs=60, ablate=ablate)
+              train_target, epochs=60, ablate=ablate, save_state=save_states, load_state=load_states)
         test(tcn, (test_local_features, test_global_features),
              test_target, ablate=ablate)
 
         ##### RNN #####
         train(rnn, rnn_optim, criterion, (train_local_features, train_global_features),
-              train_target, epochs=20, ablate=ablate)
+              train_target, epochs=20, ablate=ablate, save_state=save_states, load_state=load_states)
         test(rnn, (test_local_features, test_global_features),
              test_target, ablate=ablate)
 
@@ -317,17 +294,32 @@ def ablationTest(abl_from=0, abl_to=1, split=0):
             (test_local_features, test_global_features), 1)
 
         train(mlp, mlp_optim, criterion, train_local_features,
-              train_target, epochs=100, ablate=ablate)
+              train_target, epochs=100, ablate=ablate, save_state=save_states, load_state=load_states)
         test(mlp, test_local_features, test_target, ablate=ablate)
 
         #### MLP2 #####
         train(mlp2, mlp2_optim, criterion, train_local_features,
-              train_target, epochs=80, ablate=ablate)
+              train_target, epochs=80, ablate=ablate, save_state=save_states, load_state=load_states)
         test(mlp2, test_local_features, test_target, ablate=ablate)
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--ablation", "-a",
+                        action="store_true",
+                        help="Add --ablation/-a if you want to to execute ablation test",
+                        default=False)
+    parser.add_argument("--save_states", "-ss",
+                        action="store_true",
+                        help="Add --save_states/-ss if you want to save all nn models states to /model_states/",
+                        default=False)
+    parser.add_argument("-load_states", "-ls",
+                        action="store_true",
+                        help="Add --load_states/-ls if you want to load all nn models states from /model_states/",
+                        default=False)
+    args = parser.parse_args()
+
     start_time = time.time()
-    ablationTest(split=1)
+    runTests(args.ablation, args.save_states, args.load_states)
     print("\n--- Total time elapsed: %s seconds ---" %
           (time.time() - start_time))
