@@ -6,7 +6,7 @@ Il riconoscimento dei soggetti avviene attraverso reti neurali, in particolare s
 Tutti i dettagli sulle features e sull'architettura implementati sono disponibili nella tesi, disponibile al seguente [link](https://mega.nz/file/SMgUwbCJ#N4F3ho9f072BR4Yi3jA6_D2MoyZ4QjfcdkORLirLmVw).
 
 ## Requisiti
-Clonare la repository `https://github.com/valerio-pescatori/person_re-id`.
+Clonare la repository `git clone https://github.com/valerio-pescatori/person_re-id`.
 Per eseguire gli esperimenti è necessario scaricare il dataset, disponibile al seguente [link](https://mega.nz/file/nVJ2BY5I#s_RMEE3Wtt5zzKHnZYb6ljvNs4F3qNqqAeb0LK-6awM).
 I file contenuti nell'archivio vanno estratti nella cartella `Data/`.
 Alternativamente è possibile generare il dataset manualmente, è sufficiente aprire il progetto in Unity e premere il tasto Play.
