@@ -8,7 +8,7 @@ Tutti i dettagli sulle features e sull'architettura implementati sono disponibil
 ## Requisiti
 Per poter eseguire gli esperimenti è necessario seguire i seguenti step:
 1. Clonare la repository `git clone https://github.com/valerio-pescatori/person_re-id`
-    - Alternativamente è possibile scaricare l'archivio zip
+   - Alternativamente è possibile scaricare l'archivio zip
 3. Scaricare il dataset, disponibile al seguente [link](https://mega.nz/file/nVJ2BY5I#s_RMEE3Wtt5zzKHnZYb6ljvNs4F3qNqqAeb0LK-6awM)
 4. Estrarre il contenuto dell'archivio nella cartella `Data/`
    - Alternativamente è possibile generare il dataset manualmente, è sufficiente: 
