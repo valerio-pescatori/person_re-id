@@ -6,11 +6,15 @@ Il riconoscimento dei soggetti avviene attraverso reti neurali, in particolare s
 Tutti i dettagli sulle features e sull'architettura implementati sono disponibili nella tesi, disponibile al seguente [link](https://mega.nz/file/SMgUwbCJ#N4F3ho9f072BR4Yi3jA6_D2MoyZ4QjfcdkORLirLmVw).
 
 ## Requisiti
-Clonare la repository `git clone https://github.com/valerio-pescatori/person_re-id` oppure scaricare l'archivio zip
-Per eseguire gli esperimenti è necessario scaricare il dataset, disponibile al seguente [link](https://mega.nz/file/nVJ2BY5I#s_RMEE3Wtt5zzKHnZYb6ljvNs4F3qNqqAeb0LK-6awM).
-I file contenuti nell'archivio vanno estratti nella cartella `Data/`.
-Alternativamente è possibile generare il dataset manualmente, è sufficiente aprire il progetto in Unity e premere il tasto Play.
-In automatico le animazioni vengono messe in riproduzione e al termine dell'esecuzione i dati verranno splittati e salvati in 3 files JSON contenuti nella cartella `Data/`.
+Per poter eseguire gli esperimenti è necessario seguire i seguenti step:
+1. Clonare la repository `git clone https://github.com/valerio-pescatori/person_re-id`
+    - Alternativamente è possibile scaricare l'archivio zip
+3. Scaricare il dataset, disponibile al seguente [link](https://mega.nz/file/nVJ2BY5I#s_RMEE3Wtt5zzKHnZYb6ljvNs4F3qNqqAeb0LK-6awM)
+4. Estrarre il contenuto dell'archivio nella cartella `Data/`.
+  - Alternativamente è possibile generare il dataset manualmente, è sufficiente: 
+    - Aprire il progetto in Unity
+    - Caricare la scena tramite File --> Load Scene --> `Scenes\SampleScene.unity` 
+    - Premere il tasto Play, la collezione del dataset impiegherà circa 3 ore.
 
 ## Quickstart
 Una volta collezionato il dataset è possibile eseguire i test sui vari modelli di neural network implementati.
