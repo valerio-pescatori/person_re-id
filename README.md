@@ -11,10 +11,10 @@ Per poter eseguire gli esperimenti è necessario seguire i seguenti step:
     - Alternativamente è possibile scaricare l'archivio zip
 3. Scaricare il dataset, disponibile al seguente [link](https://mega.nz/file/nVJ2BY5I#s_RMEE3Wtt5zzKHnZYb6ljvNs4F3qNqqAeb0LK-6awM)
 4. Estrarre il contenuto dell'archivio nella cartella `Data/`
-  - Alternativamente è possibile generare il dataset manualmente, è sufficiente: 
-    - Aprire il progetto in Unity
-    - Caricare la scena tramite File --> Load Scene --> `Scenes\SampleScene.unity` 
-    - Premere il tasto Play, la collezione del dataset impiegherà circa 3 ore.
+   - Alternativamente è possibile generare il dataset manualmente, è sufficiente: 
+     - Aprire il progetto in Unity
+     - Caricare la scena tramite File --> Load Scene --> `Scenes\SampleScene.unity` 
+     - Premere il tasto Play, la collezione del dataset impiegherà circa 3 ore.
 
 ## Quickstart
 Una volta collezionato il dataset è possibile eseguire i test sui vari modelli di neural network implementati.
